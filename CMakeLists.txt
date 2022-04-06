@@ -22,6 +22,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# Fetch & build fmt
 FetchContent_Declare(
     fmt
     GIT_REPOSITORY https://github.com/fmtlib/fmt.git
@@ -57,6 +58,8 @@ endif()
 
 # Set sourcecode path, both cpp and header-files live here
 add_subdirectory("${PROJECT_SOURCE_DIR}/src")
+
+configure_file("${CMAKE_SOURCE_DIR}/configuration/Config.hpp.in" "${PROJECT_SOURCE_DIR}/src/Config.hpp" @ONLY)
 
 # Build tests if we are building a DEBUG build
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")

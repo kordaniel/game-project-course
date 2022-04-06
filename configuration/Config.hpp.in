@@ -1,0 +1,14 @@
+#ifndef CONFIG_HPP
+#define CONFIG_HPP
+
+// NOTE: This header is defined in the path configuration/Config.hpp.in and CMake generates the file
+//       src/Config.hpp based on this template. src/Config.hpp should thus never be manually modified!
+
+#define gameproj_VERSION_MAJOR "@gameproj_VERSION_MAJOR@"
+#define gameproj_VERSION_MINOR "@gameproj_VERSION_MINOR@"
+
+#define COMPILER_NAME          "@CMAKE_CXX_COMPILER@"
+#define COMPILER_ID            "@CMAKE_CXX_COMPILER_ID@"
+#define COMPILER_VERSION       "@CMAKE_CXX_COMPILER_VERSION@"
+
+#endif // CONFIG_HPP

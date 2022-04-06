@@ -13,7 +13,7 @@ class Logger
 {
 public:
     enum class Level { TRACE = 0, DEBUG, INFO, CRITICAL };
-    
+
     template<typename... Args>
     inline static void Trace(const std::string_view fmt, Args... args)
     { Logger::log(Level::TRACE, fmt, args...); }
