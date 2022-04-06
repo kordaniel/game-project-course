@@ -5,6 +5,7 @@
 #include <string>
 #include <fmt/core.h>
 #include <fmt/chrono.h>
+#include <fmt/color.h>
 #include <ctime>
 
 
@@ -35,10 +36,11 @@ public:
 private:
     inline static const std::string s_levelNames[] = { "TRACE", "DEBUG", "INFO", "CRITICAL" };
 
+    inline static Level             s_logLevel =
 #ifndef NDEBUG
-    inline static Level             s_logLevel = Level::DEBUG;
+     Level::DEBUG;
 #else
-    inline static Level             s_logLevel = Level::INFO;
+    Level::INFO;
 #endif
 
     template<typename... Args>
@@ -48,11 +50,46 @@ private:
             return;
         }
 
-        fmt::print("[{:%T}] [{}]:\t{}\n",
-            fmt::localtime(std::time(nullptr)),
-            s_levelNames[static_cast<int>(priority)],
-            fmt::format(fmt, args...)
-        );
+        static constexpr char placeholderTime[] = "[{:%T}]:";
+        static constexpr char placeholderMesg[] = "[{}]:\t{}\n";
+
+        // Print time
+        fmt::print(placeholderTime, fmt::localtime(std::time(nullptr)));
+
+        // Print message, switch color on message priority. Use terminal default for INFO messages
+        switch (priority)
+        {
+            case Level::TRACE:
+                fmt::print(fg(fmt::terminal_color::green),
+                    placeholderMesg,
+                    s_levelNames[static_cast<size_t>(priority)],
+                    fmt::format(fmt, args...)
+                );
+                break;
+            case Level::DEBUG:
+                fmt::print(fg(fmt::terminal_color::yellow),
+                    placeholderMesg,
+                    s_levelNames[static_cast<size_t>(priority)],
+                    fmt::format(fmt, args...)
+                );
+                break;
+            case Level::INFO:
+                fmt::print(
+                    placeholderMesg,
+                    s_levelNames[static_cast<size_t>(priority)],
+                    fmt::format(fmt, args...)
+                );
+                break;
+            case Level::CRITICAL:
+                fmt::print(fmt::emphasis::bold | fg(fmt::terminal_color::red),
+                    placeholderMesg,
+                    s_levelNames[static_cast<size_t>(priority)],
+                    fmt::format(fmt, args...)
+                );
+                break;
+        default:
+            break;
+        }
     }
 };
 

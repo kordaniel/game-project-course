@@ -17,6 +17,6 @@ Logger::GetLogLevel(void)
 const std::string&
 Logger::GetLogLevelAsString(void)
 {
-    return s_levelNames[static_cast<int>(s_logLevel)];
+    return s_levelNames[static_cast<size_t>(s_logLevel)];
 }
 // End static functions
