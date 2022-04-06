@@ -13,7 +13,6 @@ include(FetchContent)
 
 # Set SDL2 path
 set(SDL2_DIR "${CMAKE_SOURCE_DIR}/external/SDL2")
-#set(SDL2_DIR "external/SDL2")
 
 # Set build path ./bin
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")

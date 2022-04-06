@@ -6,5 +6,6 @@
 | 1h   | 2022-04-06 | Colorize log messages based on level |
 | .5h  | 2022-04-06 | Add CMake generated configuration header |
 | .5h  | 2022-04-06 | Configure CMake to fetch & build SDL2 |
-| 4h   |            | Total time spent |
+| 1h   | 2022-04-06 | Configure tests, add tests for Logger |
+| 5h   |            | Total time spent |
 
