@@ -11,6 +11,10 @@ endif()
 # Includes
 include(FetchContent)
 
+# Set SDL2 path
+set(SDL2_DIR "${CMAKE_SOURCE_DIR}/external/SDL2")
+#set(SDL2_DIR "external/SDL2")
+
 # Set build path ./bin
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
 
@@ -55,6 +59,9 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
     FetchContent_MakeAvailable(googletest)
 endif()
+
+# Build SDL2
+add_subdirectory("${SDL2_DIR}")
 
 # Set sourcecode path, both cpp and header-files live here
 add_subdirectory("${PROJECT_SOURCE_DIR}/src")

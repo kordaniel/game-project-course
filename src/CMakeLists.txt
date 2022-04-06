@@ -24,6 +24,7 @@ target_compile_options("${EXECNAME}" PRIVATE "${CXX_FLAGS}"
 
 target_link_options("${EXECNAME}" PRIVATE "$<$<CONFIG:Debug>:${CXX_LDFLAGS_DEBUG}>")
 
-#target_link_libraries("${EXECNAME}" fmt::fmt)
+target_include_directories("${EXECNAME}" PRIVATE "${SDL2_DIR}/include")
+
 # Use header-only fmt:
-target_link_libraries("${EXECNAME}" PRIVATE fmt::fmt-header-only)
+target_link_libraries("${EXECNAME}" PRIVATE fmt::fmt-header-only SDL2main SDL2-static)
