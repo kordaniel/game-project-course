@@ -8,6 +8,7 @@
 # Set _VERBOSE=1 to set make to produce verbose output
 _VERBOSE=0
 _BUILDDIR="build"
+_BUILDN=9 # The amount of build processes to use for parallel builds. Set to cores count+1 is recommended
 
 if [ $# -eq 1 ] && [[ "$1" == r* ]]; then
     BUILDTYPE="Release"
@@ -30,6 +31,6 @@ echo "Build system found, building"
 if [[ "${_VERBOSE}" == 1 ]]; then
     make VERBOSE=1 -C "${_BUILDDIR}"
 else
-    make -C "${_BUILDDIR}"
+    make -j "${_BUILDN}" -C "${_BUILDDIR}"
 fi
 

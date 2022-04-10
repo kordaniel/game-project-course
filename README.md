@@ -6,20 +6,23 @@ A mysterious project for the course called Game Project Course.
 * GNU Make
 * CMake ~3.16 or newer
 
-## External libraries
+## External libraries used
+* [{fmt}](https://fmt.dev/latest/index.html)
 * [SDL2](https://www.libsdl.org/)
+* [SDL_ttf](https://github.com/libsdl-org/SDL_ttf)
+* [SDL_image](https://www.libsdl.org/projects/SDL_image/)
 * [Google Test](https://github.com/google/googletest)
 
 
 ## Building and running
-CMake is used as the build system. You can set up the build system and build the project with the provided scripts. The project uses the [SDL2 library](https://www.libsdl.org/), which is configured as a git submodule so be sure to clone this repository recursively.
+CMake is used as the build system. You can set up the build system and build the project with the provided scripts. Cmake will download and build all the required libraries.
 
 There are 2 different build targets configured:
 - Debug - Default target which builds an unoptimized version of the project with debug symbols included. This target will also build the tests.
 - Release - This target will build an optimized version without the tests or debug symbols.
 
 ```console
-foo@bar:dir$ git clone --recursive git@github.com:kordaniel/game-project-course.git
+foo@bar:dir$ git clone git@github.com:kordaniel/game-project-course.git
 foo@bar:dir$ cd game-project-course
 foo@bar:game-project-course$ ./configure.sh [r]
 foo@bar:game-project-course$ ./build.sh [r]
