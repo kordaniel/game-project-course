@@ -1,9 +1,0 @@
-[submodule "external/SDL2"]
-	path = external/SDL2
-	url = git@github.com:libsdl-org/SDL.git
-[submodule "external/SDL_ttf"]
-	path = external/SDL_ttf
-	url = git@github.com:libsdl-org/SDL_ttf.git
-[submodule "external/SDL_image"]
-	path = external/SDL_image
-	url = git@github.com:libsdl-org/SDL_image.git
