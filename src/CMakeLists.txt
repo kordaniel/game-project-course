@@ -1,10 +1,12 @@
 cmake_minimum_required(VERSION 3.16)
 
 set(headers
+    "Input.hpp"
     "Logger.hpp"
 )
 
 set(sources
+    "Input.cpp"
     "Logger.cpp"
     "Main.cpp"
 )
