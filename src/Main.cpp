@@ -2,6 +2,9 @@
 
 #include "Logger.hpp"
 
+#include <SDL.h>
+#include <SDL_ttf.h>
+#include <SDL_image.h>
 
 void initialize([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 {

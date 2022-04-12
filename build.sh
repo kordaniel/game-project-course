@@ -29,8 +29,10 @@ fi
 echo "Build system found, building"
 
 if [[ "${_VERBOSE}" == 1 ]]; then
-    make VERBOSE=1 -C "${_BUILDDIR}"
+    make VERBOSE=1 -j "${_BUILDN}" -C "${_BUILDDIR}"
+    #make VERBOSE=1 -C "${_BUILDDIR}"
 else
     make -j "${_BUILDN}" -C "${_BUILDDIR}"
+    #make -C "${_BUILDDIR}"
 fi
 

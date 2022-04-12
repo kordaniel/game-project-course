@@ -12,5 +12,6 @@
 | 2h   | 2022-04-10 | Configure buildtools, SDL2, SDL2-image, SDL2-ttf |
 | 1.5h | 2022-04-11 | Create input class, handles keyboard & supports callbacks |
 | .5h  | 2022-04-12 | Abstract SDL events and keycodes |
-| 13h  |            | Total time spent |
+| 3h   | 2022-04-12 | Fix buildsystem, link to built libraries |
+| 16h  |            | Total time spent |
 

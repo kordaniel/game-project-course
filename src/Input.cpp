@@ -18,16 +18,7 @@ Input::Input(const KeyCallback quitHandler)
     , _keyReleaseCallbacks()
     , _sdlQuitCallback(quitHandler)
 {
-    static_assert(
-        std::is_same<SDL_Keycode, int32_t>(),
-        "Type of enum Input::Keycode is not compatible with the type of SDL_Keycode."
-        " SDL_Keycode is a typedef to Sint32, which is a signed 32b integer."
-    );
-    static_assert(
-        std::is_same<std::underlying_type_t<SDL_EventType>, uint32_t>(),
-        "Type of enum Input::EventType is not compatible with the type of SDL_EventType."
-        " SDL_EventType is Uint32, an unsigned 32b integer."
-    );
+    //
 }
 
 void

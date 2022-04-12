@@ -62,17 +62,16 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif()
 
 # SDL2
-# Version 2.0.22
 FetchContent_Declare(
-    SDL2
+    sdl2-main
     GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
-    GIT_TAG 727eef7064e02aea89281493d0c5f16ad9e3c16f
+    GIT_TAG 505d6a4a052592b2676f87456c1f564daa8d2c50 # Version 2.0.22
     GIT_PROGRESS TRUE
 )
 
 # SDL_ttf
 FetchContent_Declare(
-    SDL2_TTF
+    sdl2-ttf
     GIT_REPOSITORY https://github.com/libsdl-org/SDL_ttf.git
     GIT_TAG 81f9e9b7436a649f7cb7440759234b9cbfdc0c50
     GIT_PROGRESS TRUE
@@ -80,14 +79,13 @@ FetchContent_Declare(
 
 # SDL2_image
 FetchContent_Declare(
-    SDL2_IMAGE
+    sdl2-image
     GIT_REPOSITORY https://github.com/libsdl-org/SDL_image.git
     GIT_TAG a623e629776e6ae7294d73a0f31128cf0031fe4f
     GIT_PROGRESS TRUE
 )
 
-# cmake/fetchcontent recommends to use lowercased names
-FetchContent_MakeAvailable(fmt sdl2 sdl2_ttf sdl2_image)
+FetchContent_MakeAvailable(fmt sdl2-main sdl2-ttf sdl2-image)
 
 # Set sourcecode path, both cpp and header-files live here
 add_subdirectory("${PROJECT_SOURCE_DIR}/src")

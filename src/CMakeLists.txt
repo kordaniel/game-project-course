@@ -27,16 +27,18 @@ target_compile_options("${EXECNAME}" PRIVATE "${CXX_FLAGS}"
 target_link_options("${EXECNAME}" PRIVATE "$<$<CONFIG:Debug>:${CXX_LDFLAGS_DEBUG}>")
 
 target_include_directories("${EXECNAME}"
-    PRIVATE "${sdl2_SOURCE_DIR}/include"
-    PRIVATE "${sdl2_ttf_SOURCE_DIR}"
-    PRIVATE "${sdl2_image_SOURCE_DIR}"
+    PRIVATE "${sdl2-main_SOURCE_DIR}/include"
+    PRIVATE "${sdl2-ttf_SOURCE_DIR}"
+    PRIVATE "${sdl2-image_SOURCE_DIR}"
 )
 
 # Use header-only fmt:
 target_link_libraries("${EXECNAME}" PRIVATE
-    fmt::fmt-header-only
-    SDL2main
-    SDL2-static
-    SDL_ttf
-    SDL2_image
+    PRIVATE fmt::fmt-header-only
+    PRIVATE SDL2::SDL2
+    PRIVATE SDL2_ttf
+    PRIVATE SDL2_image
+    #SDL2main
+    #SDL2-static
+    #SDL_ttf
 )
