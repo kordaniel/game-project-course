@@ -33,6 +33,8 @@ public:
     static void               SetLogLevel(Logger::Level level);
     static Logger::Level      GetLogLevel(void);
     static const std::string& GetLogLevelAsString(void);
+
+
 private:
     inline static const std::string s_levelNames[] = { "TRACE", "DEBUG", "INFO", "CRITICAL" };
 

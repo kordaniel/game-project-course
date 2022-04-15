@@ -22,3 +22,15 @@ add_test(
     NAME    "${LoggerTest}"
     COMMAND "${LoggerTest}"
 )
+
+set(ColorTest "ColorTest")
+set(ColorTestSources
+    "ColorTest.cpp"
+    "${CMAKE_SOURCE_DIR}/src/Color.cpp"
+)
+
+add_executable("${ColorTest}" "${ColorTestSources}")
+add_test(
+    NAME    "${ColorTest}"
+    COMMAND "${ColorTest}"
+)

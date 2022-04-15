@@ -1,13 +1,25 @@
 cmake_minimum_required(VERSION 3.16)
 
 set(headers
+    "Color.hpp"
+    "Constants.hpp"
+    "Font.hpp"
+    "Helpers.hpp"
+    "Image.hpp"
     "Input.hpp"
     "Logger.hpp"
+    "ResourceManager.hpp"
 )
 
 set(sources
+    "Color.cpp"
+    "Constants.cpp"
+    "Font.cpp"
+    "Helpers.cpp"
+    "Image.cpp"
     "Input.cpp"
     "Logger.cpp"
+    "ResourceManager.cpp"
     "Main.cpp"
 )
 
@@ -38,7 +50,14 @@ target_link_libraries("${EXECNAME}" PRIVATE
     PRIVATE SDL2::SDL2
     PRIVATE SDL2_ttf
     PRIVATE SDL2_image
-    #SDL2main
-    #SDL2-static
-    #SDL_ttf
+)
+
+add_custom_command(
+    TARGET "${EXECNAME}" POST_BUILD
+    COMMAND "${CMAKE_COMMAND}" -E copy "${CMAKE_SOURCE_DIR}/res/fonts/indie-flower/IndieFlower-Regular.ttf" $<TARGET_FILE_DIR:${EXECNAME}>/res/fonts/indieflower.ttf
+    COMMAND "${CMAKE_COMMAND}" -E copy "${CMAKE_SOURCE_DIR}/res/fonts/patrick-hand/PatrickHand-Regular.ttf" $<TARGET_FILE_DIR:${EXECNAME}>/res/fonts/patrickhand.ttf
+    COMMAND "${CMAKE_COMMAND}" -E copy "${CMAKE_SOURCE_DIR}/res/fonts/permanent-marker/PermanentMarker-Regular.ttf" $<TARGET_FILE_DIR:${EXECNAME}>/res/fonts/permanentmarker.ttf
+    COMMAND "${CMAKE_COMMAND}" -E copy "${CMAKE_SOURCE_DIR}/res/fonts/rubik-bubbles/RubikBubbles-Regular.ttf" $<TARGET_FILE_DIR:${EXECNAME}>/res/fonts/rubikbubbles.ttf
+    COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_SOURCE_DIR}/res/images" $<TARGET_FILE_DIR:${EXECNAME}>/res/images
+    COMMENT "Copied all resources to the directory res/ in relation to the executable"
 )

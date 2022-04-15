@@ -15,7 +15,7 @@ A mysterious project for the course called Game Project Course.
 
 
 ## Building and running
-CMake is used as the build system. You can set up the build system and build the project with the provided scripts. Cmake will download and build all the required libraries.
+CMake is used as the build system. You can set up the build system and build the project with the provided scripts. Cmake will download and build all the required libraries. Cmake will also copy all the required resources into paths inside the build directory `bin/res/` so always make sure execute the binaries from this directory.
 
 There are 2 different build targets configured:
 - Debug - Default target which builds an unoptimized version of the project with debug symbols included. This target will also build the tests.
@@ -27,7 +27,9 @@ foo@bar:dir$ cd game-project-course
 foo@bar:game-project-course$ ./configure.sh [r]
 foo@bar:game-project-course$ ./build.sh [r]
 foo@bar:game-project-course$ ./runtests.sh [c]
-foo@bar:game-project-course$ ./bin/gameproj[-dbg]
+foo@bar:game-project-course$ ./run.sh [r]
+OR
+foo@bar:game-project-course$ cd bin/; ./bin/gameproj[-dbg]
 ```
 Optional arguments:
 * `r` to target the optimized Release target.
