@@ -1,8 +1,6 @@
 #include "ResourceManager.hpp"
 #include "Logger.hpp"
 
-#include <SDL.h>
-#include <SDL_ttf.h>
 #include <cassert>
 
 
@@ -10,6 +8,10 @@ ResourceManager::ResourceManager(void)
     : _fonts()
     , _images()
 {
+    if (s_isInstantiated) {
+        // Assertions are not executed in release builds - sanity check
+        Logger::Critical("[ERROR]: Resource manager was re-initialized");
+    }
     assert(!s_isInstantiated);
     s_isInstantiated = true;
 }
@@ -49,7 +51,7 @@ Image&
 ResourceManager::loadImage(std::string& filepath)
 {
     auto retval = _images.try_emplace(filepath, filepath);
-    assert(retval.second);
+    assert(retval.second); // A new image was inserted
     Logger::Debug("ResourceManager loaded image {}", filepath);
     return retval.first->second;
 }

@@ -17,6 +17,7 @@ _BUILDDIR="build/debug"
 _BINDIR="bin"
 _TESTS=(
     "ColorTest"
+    "GeometryTest"
     "LoggerTest"
 )
 

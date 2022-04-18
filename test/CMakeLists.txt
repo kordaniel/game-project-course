@@ -34,3 +34,15 @@ add_test(
     NAME    "${ColorTest}"
     COMMAND "${ColorTest}"
 )
+
+set(GeometryTest "GeometryTest")
+set(GeometryTestSources
+    "GeometryTest.cpp"
+    "${CMAKE_SOURCE_DIR}/src/Geometry.cpp"
+)
+
+add_executable("${GeometryTest}" "${GeometryTestSources}")
+add_test(
+    NAME    "${GeometryTest}"
+    COMMAND "${GeometryTest}"
+)

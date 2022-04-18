@@ -1,6 +1,8 @@
 #ifndef INPUT_HPP
 #define INPUT_HPP
 
+#include "Geometry.hpp"
+
 #include <SDL.h>
 
 #include <unordered_map>
@@ -66,6 +68,12 @@ public:
         UP        = SDLK_UP
     };
 
+    enum class MouseButton : uint32_t {
+        LEFT   = SDL_BUTTON_LEFT,
+        MIDDLE = SDL_BUTTON_MIDDLE,
+        RIGHT  = SDL_BUTTON_RIGHT
+    };
+
     enum class EventType : uint32_t {
         // Abstract SDL key and QUIT events
         // https://wiki.libsdl.org/SDL_Event
@@ -75,22 +83,30 @@ public:
     };
 
     Input(void);
-    Input(const KeyCallback quitHandler);
-    void PollEvents(void);
+    Input(const Input& other) = delete; // Copy constructor
+    Input(Input&& other)      = delete; // Move constructor
+
+    /// Handle SDL inputevent, keyboard and mouse
+    /// @return Last position of mouse
+    Point2D HandleEvent(SDL_Event* event);
+
     void RegisterKeyCallback(Input::KeyCode key, Input::EventType action, const KeyCallback callback);
-    void RegisterQuitEventCallback(const KeyCallback callback);
-    bool IsPressed(Input::KeyCode key) const;
+
+    bool IsPressed(Input::KeyCode key)        const;
+    bool IsPressed(Input::MouseButton button) const;
+    Point2D GetMousePos(void) const;
 
 private:
-    void setKeyPressed(bool isPressed);
-    void callCallables(void) const;
+    void setKeyPressed(SDL_Event* e, bool isPressed);
+    void callCallables(SDL_Event* e) const;
 
 private:
-    SDL_Event _event;
+    SDL_Point _mousePos;
+    Uint32    _mouseButtons;   // Bitmask of the current button state
     std::unordered_map<KeyCode, bool>                     _keyStatus;
     std::unordered_map<KeyCode, std::vector<KeyCallback>> _keyPressCallbacks;
     std::unordered_map<KeyCode, std::vector<KeyCallback>> _keyReleaseCallbacks;
-    KeyCallback                                           _sdlQuitCallback;
+
 };
 
 #endif // INPUT_HPP

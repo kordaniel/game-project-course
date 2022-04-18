@@ -1,0 +1,329 @@
+#include "Sdl2.hpp"
+#include "Logger.hpp"
+
+#include <cstdlib>     // std::atexit
+#include <cstdint>
+#include <type_traits> // std::is_same
+#include <cassert>
+
+
+bool
+Sdl2::Initialize(void)
+{ // Static function
+#ifndef NDEBUG
+    Logger::Debug("Initializing SDL2 Subsystem!");
+#endif
+
+    // Do static assertions that the SDL Typedefs are compatible with the types provided
+    // by the current platform that we use internally, outside the SDL-functions.
+    static_assert(
+        std::is_same<SDL_Keycode, int32_t>(),
+        "Type of enum Input::Keycode is not compatible with the type of SDL_Keycode."
+        " SDL_Keycode is a typedef to Sint32, which is a signed 32b integer."
+    );
+    static_assert(
+        std::is_same<std::underlying_type_t<SDL_EventType>, uint32_t>(),
+        "Type of enum Input::EventType is not compatible with the type of SDL_EventType."
+        " SDL_EventType is Uint32, an unsigned 32b integer."
+    );
+
+    static_assert(
+        std::is_same<Uint8, uint8_t>(),
+        "Mismatching types between SDL and cstdint defined types"
+    );
+    static_assert(
+        std::is_same<Uint16, uint16_t>(),
+        "Mismatching types between SDL and cstdint defined types"
+    );
+    static_assert(
+        std::is_same<Uint32, uint32_t>(),
+        "Mismatching types between SDL and cstdint defined types"
+    );
+    static_assert(
+        std::is_same<Uint64, uint64_t>(),
+        "Mismatching types between SDL and cstdint defined types"
+    );
+    static_assert(
+        std::is_same<Sint8, int8_t>(),
+        "Mismatching types between SDL and cstdint defined types"
+    );
+    static_assert(
+        std::is_same<Sint16, int16_t>(),
+        "Mismatching types between SDL and cstdint defined types"
+    );
+    static_assert(
+        std::is_same<Sint32, int32_t>(),
+        "Mismatching types between SDL and cstdint defined types"
+    );
+    static_assert(
+        std::is_same<Sint64, int64_t>(),
+        "Mismatching types between SDL and cstdint defined types"
+    );
+
+    assert(s_isInitialized == false);
+    assert(s_ttfIsInitialized == false);
+    assert(s_imageIsInitialized == false);
+
+    // sdlFlags can be set to 0 if we want to initialize the needed subsystems individually
+    Uint32 sdlFlags = SDL_INIT_EVENTS | SDL_INIT_TIMER | SDL_INIT_VIDEO;
+    int imgFlags    = IMG_INIT_JPG | IMG_INIT_PNG; // | IMG_INIT_TIF;
+
+    s_isInitialized = SDL_Init(sdlFlags) == 0;
+    if (!IsInitialized()) {
+        Logger::Critical("Unable to initialize SDL2 Subsystem: {}!", SDL_GetError());
+        return false;
+    }
+    Logger::Debug("SDL2 Subsystem initialized!");
+
+    std::atexit(Sdl2::Destruct);
+
+    s_ttfIsInitialized = TTF_Init() == 0;
+    if (!TtfIsInitialized()) {
+        Logger::Critical("Unable to initialize SDL2 TTF font Subsystem: {}!", TTF_GetError());
+        return false;
+    }
+    Logger::Debug("SDL2 TTF font Subsystem initialized!");
+
+    int inittedFlgs = IMG_Init(imgFlags); // Returns 0 on error and a bitmask of the initalized formats on success
+    if ( (inittedFlgs & imgFlags) != imgFlags)
+    {
+        Logger::Critical("Unable to initialize SDL2 Image Subsystem: {}", IMG_GetError());
+        if ( (inittedFlgs & IMG_INIT_JPG) == 0) {
+            Logger::Debug("Failed to init JPG");
+        }
+        if ( (inittedFlgs & IMG_INIT_PNG) == 0) {
+            Logger::Debug("Failed to init PNG");
+        }
+        //if ( (inittedFlgs & IMG_INIT_TIF) == 0) {
+        //    Logger::Debug("Failed to init TIF");
+        //}
+        return false;
+    }
+    s_imageIsInitialized = true;
+    Logger::Debug("SDL2 Image Subsystem initialized!");
+
+    return true;
+}
+
+void
+Sdl2::Destruct(void)
+{ // Static function
+    if (ImageIsInitialized())
+    {
+        s_imageIsInitialized = false;
+        IMG_Quit();
+        Logger::Debug("SDL2 Image Subsystem destructed");
+    }
+    else {
+        Logger::Debug("Unable to destruct uninitialized SDL2 Image Subsystem");
+    }
+
+    if (TtfIsInitialized())
+    {
+        s_ttfIsInitialized = false;
+        TTF_Quit();
+        Logger::Debug("SDL2 TTF font Subsystem destructed");
+    }
+    else {
+        Logger::Debug("Unable to destruct uninitialized SDL2 TTF Subsystem!");
+    }
+
+    if (IsInitialized())
+    {
+        s_isInitialized = false;
+        SDL_Quit();
+        Logger::Debug("SDL2 Subsystem destructed");
+    }
+    else {
+        Logger::Debug("Unable to destruct uninitialized SDL2 Subsystem!");
+    }
+}
+
+bool
+Sdl2::IsInitialized(void)
+{ // Static function
+    return s_isInitialized;
+}
+
+bool
+Sdl2::TtfIsInitialized(void)
+{ // Static function
+    return s_ttfIsInitialized;
+}
+
+bool
+Sdl2::ImageIsInitialized(void)
+{ // Static function
+    return s_imageIsInitialized;
+}
+
+void
+Sdl2::LogVersion(void)
+{ // Static function
+    SDL_version compiled;
+    SDL_version linked;
+    SDL_VERSION(&compiled);
+    SDL_GetVersion(&linked);
+    Logger::Debug("Compiled against SDL version: {}.{}.{}", compiled.major, compiled.minor, compiled.patch);
+    Logger::Debug("Linked against SDL version:   {}.{}.{}", linked.major, linked.minor, linked.patch);
+}
+
+void
+Sdl2::LogTtfVersion(void)
+{ // Static function
+    SDL_version compiled;
+    const SDL_version* linked = TTF_Linked_Version();
+    TTF_VERSION(&compiled);
+    Logger::Debug("Compiled against SDL_ttf version: {}.{}.{}", compiled.major, compiled.minor, compiled.patch);
+    Logger::Debug("Linked against SDL_ttf version:   {}.{}.{}", linked->major, linked->minor, linked->patch);
+}
+
+void
+Sdl2::LogImageVersion(void)
+{ // Static function
+    SDL_version compiled;
+    const SDL_version* linked = IMG_Linked_Version();
+    SDL_IMAGE_VERSION(&compiled);
+    Logger::Debug("Compiled against SDL_Image version: {}.{}.{}", compiled.major, compiled.minor, compiled.patch);
+    Logger::Debug("Linked against SDL_Image version:   {}.{}.{}", linked->major, linked->minor, linked->patch);
+}
+
+// TODO: Refactor to use Dimensions2D for the width & height
+Sdl2::Sdl2(const std::string& windowTitle, int windowWidth, int windowHeight)
+    : _input()
+    , _window(windowTitle, windowWidth, windowHeight)
+    , _renderer(GetSdlWindow())
+    , _quitEventCallback(nullptr)
+{
+    //
+}
+
+Sdl2::~Sdl2(void)
+{
+    //
+}
+
+void
+Sdl2::RegisterQuitEventCallback(const EventCallback quitCallback)
+{
+    _quitEventCallback = quitCallback;
+}
+
+Point2D
+Sdl2::PollEvents(void)
+{
+    while (SDL_PollEvent(&_event))
+    {
+        switch (_event.type)
+        {
+            case SDL_MOUSEMOTION:     // Fall through
+            case SDL_MOUSEBUTTONDOWN: // Fall through
+            case SDL_MOUSEBUTTONUP:   // Fall through
+            case SDL_KEYDOWN:         // Fall through, handle all input events in case SDL_KEYUP
+            case SDL_KEYUP:
+                _input.HandleEvent(&_event);
+                break;
+            case SDL_QUIT:
+                if (_quitEventCallback) { _quitEventCallback(); }
+#ifndef NDEBUG
+                else { Logger::Debug("Quit handler not registered"); }
+#endif
+                break;
+/*
+            case SDL_WINDOWEVENT_RESIZED:
+                Logger::Critical("Event: SDL_WINDOWEVENT_RESIZED");
+                break;
+            case SDL_RENDER_DEVICE_RESET:
+                Logger::Critical("Event: RENDER_DEVICE_RESET");
+                break;
+            case SDL_RENDER_TARGETS_RESET:
+                Logger::Critical("Event: RENDER_TARGETS_RESET");
+                break;
+*/
+            case SDL_WINDOWEVENT: // Triggered when toggling fullscreen
+                switch (_event.window.event)
+                {
+/*
+                    case ::SDL_WINDOWEVENT_SHOWN:
+                        Logger::Info("Window shown");
+                        break;
+                    case ::SDL_WINDOWEVENT_HIDDEN:
+                        Logger::Info("Window hidden");
+                        break;
+                    case ::SDL_WINDOWEVENT_EXPOSED:
+                        Logger::Info("Window exposed");
+                        break;
+                    case ::SDL_WINDOWEVENT_MOVED:
+                        Logger::Info("Window moved");
+                        break;
+*/
+
+// These happen when resizing or toggling fullscreen
+                    case ::SDL_WINDOWEVENT_RESIZED: // Docs: This event is always preceeded by ::SDL_WINDOWEVENT_SIZE_CHANGED
+                        Logger::Info("Window resized to {}x{}", _event.window.data1, _event.window.data2);
+                        break;
+                    case ::SDL_WINDOWEVENT_SIZE_CHANGED:
+                        Logger::Info("Window size changed to {}x{}", _event.window.data1, _event.window.data2);
+                        break;
+// -------------------------------------------------
+
+/*
+                    case ::SDL_WINDOWEVENT_MINIMIZED:
+                        Logger::Info("Window minimized");
+                        break;
+                    case ::SDL_WINDOWEVENT_MAXIMIZED:
+                        Logger::Info("Window maximized");
+                        break;
+                    case ::SDL_WINDOWEVENT_RESTORED:
+                        Logger::Info("Window restored");
+                        break;
+                    case ::SDL_WINDOWEVENT_ENTER:
+                        Logger::Info("Mouse entered");
+                        break;
+                    case ::SDL_WINDOWEVENT_CLOSE:
+                        Logger::Info("Window closed");
+                        break;
+*/
+                    default:
+                        //Logger::Info("Unhandled windowevent occured");
+                        break;
+                }
+                break;
+            default:
+                //Logger::Debug("Unhandled event occured");
+                break;
+        }
+    }
+
+    return _input.GetMousePos();
+}
+
+Input&
+Sdl2::GetInput(void)
+{
+    return _input;
+}
+
+const Window&
+Sdl2::GetWindow(void) const
+{
+    return _window;
+}
+
+SDL_Window*
+Sdl2::GetSdlWindow(void) const
+{
+    return _window.GetSdlWindow();
+}
+
+const Renderer&
+Sdl2::GetRenderer(void) const
+{
+    return _renderer;
+}
+
+SDL_Renderer*
+Sdl2::GetSdlRenderer(void) const
+{
+    return _renderer.GetSdlRenderer();
+}
