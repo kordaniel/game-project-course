@@ -14,4 +14,9 @@ struct Dimensions2D
     bool operator!=(const Dimensions2D& rhs) const;
 };
 
+struct Rectangle
+{
+    int X, Y, W, H;
+};
+
 #endif // GEOMETRY_HPP

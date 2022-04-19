@@ -13,22 +13,20 @@
 class Texture
 {
 public:
-    enum class BlendMode {
-        NONE  = SDL_BLENDMODE_NONE,  // dstRGBA = srcRGBA
-        BLEND = SDL_BLENDMODE_BLEND, // "Alpha blending" (default)
-        ADD   = SDL_BLENDMODE_ADD,   // "Additive blending"
-        MOD   = SDL_BLENDMODE_MOD    // "Color modulate"
-    };
-
     Texture(void);
     Texture(const Renderer& renderer, SDL_Surface* surface);
     Texture(const Texture& other) = delete; // Copy constructor
     Texture(Texture&& other) noexcept; // Move constructor, destructor is called after move
     ~Texture(void);
 
+    /// Creates a texture from surface
     void CreateTexture(const Renderer& renderer, SDL_Surface* surface);
-    // TODO: Use Point2D for position
-    void CreateTexture(const Renderer& renderer, Uint32 format, int access, int w, int h);
+
+    /// Creates a texture, default parameters allow the texture to be used as a renderer target.
+    /// NOTE: "You can set the texture scaling method by setting SDL_HINT_RENDER_SCALE_QUALITY before creating the texture."
+    void CreateTexture(const Renderer& renderer, Dimensions2D size,
+                       Uint32 format = SDL_PIXELFORMAT_RGBA8888,
+                       int access = SDL_TEXTUREACCESS_TARGET);
 
     /// Modulates each of the color values of the texture according to the formula
     /// srcC = srcC * (color / 255) when it is rendered.
@@ -37,7 +35,7 @@ public:
     /// Modulates the alpha value of the texture according to the formula
     /// srcA = srcA * (alpha / 255) when it is rendered.
     void SetAlphaModulation(uint8_t alpha) const;
-    void SetBlendMode(Texture::BlendMode blendMode) const;
+    void SetBlendMode(Renderer::BlendMode blendMode) const;
 
     const SDL_Texture* GetTexture(void) const;
     Dimensions2D       GetSize(void)    const;

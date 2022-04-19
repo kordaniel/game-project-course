@@ -66,6 +66,14 @@ Renderer::RenderPresent(bool doRenderClear) const
 }
 
 void
+Renderer::RenderClear(void) const
+{
+    if (SDL_RenderClear(_renderer) != 0) {
+        Logger::Critical("Unable to clear the current rendering target: {}", SDL_GetError());
+    }
+}
+
+void
 Renderer::SetRenderDrawColor(Color c) const
 {
     if (SDL_SetRenderDrawColor(_renderer, c.r, c.g, c.b, c.a) != 0) {
@@ -82,10 +90,10 @@ Renderer::SetLogicalSize(Dimensions2D size) const
 }
 
 void
-Renderer::RenderClear(void) const
-{
-    if (SDL_RenderClear(_renderer) != 0) {
-        Logger::Critical("Unable to clear the current rendering target: {}", SDL_GetError());
+Renderer::SetDrawBlendMode(BlendMode blendMode) const
+{ // NOTE: This method has not been tested
+    if (SDL_SetRenderDrawBlendMode(_renderer, static_cast<SDL_BlendMode>(blendMode)) != 0) {
+        Logger::Debug("Unable to set renderer draw blend mode: {}", SDL_GetError());
     }
 }
 
@@ -104,6 +112,55 @@ Renderer::RenderCopyEx(SDL_Texture* texture, const SDL_Rect* srcrect,
 { // NOTE: This method has not been tested
     if (SDL_RenderCopyEx(_renderer, texture, srcrect, dstrect, angle, center, flip) != 0) {
         Logger::Critical("Unable to copy texture to rendering target: {}", SDL_GetError());
+    }
+}
+
+void
+Renderer::DrawPoint(Point2D position) const
+{ // NOTE: This method has not been tested
+    if (SDL_RenderDrawPoint(_renderer, position.X, position.Y) != 0) {
+        Logger::Debug("Renderer was not able to draw a point to the coords {}x{}: {}",
+                      position.X, position.Y, SDL_GetError());
+    }
+}
+
+void
+Renderer::DrawLine(Point2D point1, Point2D point2) const
+{ // NOTE: This method has not been tested
+    if (SDL_RenderDrawLine(_renderer, point1.X, point1.Y, point2.X, point2.Y) != 0) {
+        Logger::Debug("Renderer was not able to draw a line: {}", SDL_GetError());
+    }
+}
+
+void
+Renderer::DrawRectangle(Rectangle rectangle) const
+{ // NOTE: This method has not been tested
+    DrawRectangle(&rectangle);
+}
+
+void
+Renderer::DrawRectangle(Rectangle* rectangle) const
+{ // NOTE: This method has not been tested
+  // TODO: Cast rectangle to SDL_Rect
+    SDL_Rect sdlRect = { rectangle->X, rectangle->Y, rectangle->W, rectangle->H };
+    if (SDL_RenderDrawRect(_renderer, &sdlRect) != 0) {
+        Logger::Debug("Renderer was not able to draw a rectangle: {}", SDL_GetError());
+    }
+}
+
+void
+Renderer::FillRectangle(Rectangle rectangle) const
+{ // NOTE: This method has not been tested
+    FillRectangle(&rectangle);
+}
+
+void
+Renderer::FillRectangle(Rectangle* rectangle) const
+{ // NOTE: This method has not been tested
+  // TODO: Cast rectangle to SDL_Rect
+    SDL_Rect sdlRect = { rectangle->X, rectangle->Y, rectangle->W, rectangle->H };
+    if (SDL_RenderFillRect(_renderer, &sdlRect) != 0) {
+        Logger::Debug("Renderer was not able to fill a rectangle: {}", SDL_GetError());
     }
 }
 

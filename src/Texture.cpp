@@ -38,11 +38,10 @@ Texture::CreateTexture(const Renderer& renderer, SDL_Surface* surface)
 }
 
 void
-Texture::CreateTexture(const Renderer& renderer, Uint32 format, int access, int w, int h)
+Texture::CreateTexture(const Renderer& renderer, Dimensions2D size, Uint32 format, int access)
 {
-    // "You can set the texture scaling method by setting SDL_HINT_RENDER_SCALE_QUALITY before creating the texture."
     destroyTexture();
-    _texture = SDL_CreateTexture(renderer.GetSdlRenderer(), format, access, w, h);
+    _texture = SDL_CreateTexture(renderer.GetSdlRenderer(), format, access, size.W, size.H);
     if (_texture == nullptr) {
         Logger::Critical("Unable to create texture: {}", SDL_GetError());
     }
@@ -65,7 +64,7 @@ Texture::SetAlphaModulation(uint8_t alpha) const
 }
 
 void
-Texture::SetBlendMode(Texture::BlendMode blendMode) const
+Texture::SetBlendMode(Renderer::BlendMode blendMode) const
 {
     if (SDL_SetTextureBlendMode(_texture, static_cast<SDL_BlendMode>(blendMode)) != 0) {
         Logger::Critical("Unable to set blendmode for texture: {}", SDL_GetError());
