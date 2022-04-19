@@ -18,5 +18,6 @@
 | 4h   | 2022-04-18 | Game, Gamestates, Menusystem implementation, helper classes, tests for Dimensions2D logical op. overloads, Cleanup code |
 | 3h   | 2022-04-19 | Implement game states: MENU, PAUSED (With menu), RUNNING (loop that sleeps), QUIT |
 | 1h   | 2022-04-19 | Refactor Renderer, Texture. Add wrappers for sdl draw functions. Add class Rectangle |
-| 30h  |            | Total time spent |
+| .5h  | 2022-04-19 | Add Timer class |
+| 30.5h|            | Total time spent |
 

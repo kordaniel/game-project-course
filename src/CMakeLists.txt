@@ -16,6 +16,7 @@ set(headers
     "ResourceManager.hpp"
     "Sdl2.hpp"
     "Texture.hpp"
+    "Timer.hpp"
     "Window.hpp"
 )
 
@@ -36,6 +37,7 @@ set(sources
     "Sdl2.cpp"
     "Main.cpp"
     "Texture.cpp"
+    "Timer.cpp"
     "Window.cpp"
 )
 
