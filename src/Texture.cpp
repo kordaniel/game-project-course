@@ -48,10 +48,45 @@ Texture::CreateTexture(const Renderer& renderer, Uint32 format, int access, int 
     }
 }
 
+void
+Texture::SetColorModulation(Color color) const
+{
+    if (SDL_SetTextureColorMod(_texture, color.r, color.g, color.b) != 0) {
+        Logger::Critical("Unable to set color modulation for texture: {}", SDL_GetError());
+    }
+}
+
+void
+Texture::SetAlphaModulation(uint8_t alpha) const
+{
+    if (SDL_SetTextureAlphaMod(_texture, alpha) != 0) {
+        Logger::Critical("Unable to set alpha modulation for texture: {}:", SDL_GetError());
+    }
+}
+
+void
+Texture::SetBlendMode(Texture::BlendMode blendMode) const
+{
+    if (SDL_SetTextureBlendMode(_texture, static_cast<SDL_BlendMode>(blendMode)) != 0) {
+        Logger::Critical("Unable to set blendmode for texture: {}", SDL_GetError());
+    }
+}
+
 const SDL_Texture*
 Texture::GetTexture(void) const
 {
     return _texture;
+}
+
+Dimensions2D
+Texture::GetSize(void) const
+{
+    Dimensions2D size;
+    if (SDL_QueryTexture(_texture, nullptr, nullptr, &size.W, &size.H) != 0) {
+        Logger::Critical("Unable to query the the size for texture: {}", SDL_GetError());
+        size = { -1, -1 };
+    }
+    return size;
 }
 
 void

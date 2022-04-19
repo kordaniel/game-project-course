@@ -20,7 +20,7 @@ private:
     enum class Selection : size_t { NOT_SELECTED = 0, SELECTED = 1 };
 
 public:
-    Label(const Font& font, std::string text, Color color, int xPos, int yPos, bool isSelected = false);
+    Label(const Font& font, std::string text, Color color, Point2D position, bool isSelected = false);
     Label(const Label& other) = delete;  // Copy constructor
     Label(Label&& other) noexcept; // Move constructor, destructor is called after move
     ~Label(void) noexcept;
@@ -28,14 +28,13 @@ public:
     const SDL_Surface* GetSurface(void) const;
     const SDL_Texture* GetTexture(void) const;
 
-    Point2D GetCoords(void)     const;
-    int     GetWidth(void)      const;
-    int     GetHeight(void)     const;
-    bool    GetIsSelected(void) const;
+    Point2D      GetCoords(void)     const;
+    Dimensions2D GetDimensions(void) const;
+    bool         GetIsSelected(void) const;
 
     /// UpdateTexture MUST be called after this method has been called
     void SetIsSelected(bool selected);
-    void UpdateTexture(const Renderer& renderer);
+    void UpdateTexture(const Renderer& renderer, bool setCentered = false);
 
     void Render(const Renderer& renderer, bool ScaleToDstRect) const;
 
@@ -47,7 +46,7 @@ private:
     const Font&  _font;
     std::string  _text;
     std::array<SDL_Surface*, 2> _textSurfaces;
-    SDL_Rect     _textRect;
+    std::array<SDL_Rect, 2>     _textRectangles;
     Texture      _textTexture;
 
 };

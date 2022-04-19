@@ -18,13 +18,17 @@ public:
 private:
     enum class State { QUIT, MENU, RUNNING, PAUSED };
 
+    void setGameState(State state);
     void handleQuitEvent(void);
     void handleMenu(void);
+    void handleGame(void);
+    void handlePaused(void);
 
 private:
     State            _state;
     Sdl2&            _sdl;
     ResourceManager& _resMgr;
+    Point2D          _mousePos;
 
 };
 

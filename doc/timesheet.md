@@ -16,5 +16,6 @@
 | 3h   | 2022-04-13 | ResourceManager, loads&serves fonts. SDL2 abstraction, draws menu text labels as textures |
 | 3h   | 2022-04-14 | ResourceManager, loads&serves images. More abstraction: Color, Constants, Font, Helpers (hash function), Images |
 | 4h   | 2022-04-18 | Game, Gamestates, Menusystem implementation, helper classes, tests for Dimensions2D logical op. overloads, Cleanup code |
-| 26h  |            | Total time spent |
+| 3h   | 2022-04-19 | Implement game states: MENU, PAUSED (With menu), RUNNING (loop that sleeps), QUIT |
+| 29h  |            | Total time spent |
 

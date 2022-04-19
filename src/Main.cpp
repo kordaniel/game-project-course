@@ -6,13 +6,18 @@
 
 #include <string>
 
-/* *****************************************************************************
+
+/* ************************************************************************** *
  * BUGS: When toggling fullscreen with the key 'f' a SDL_WINDOWEVENT_SIZE_CHANGED
  *       event always occurs but a SDL_WINDOWEVENT_RESIZED event occurs seemingly
  *       only randomly. The latter is needed for the renderer to properly
  *       stretch the current surface/textures.
  * ************************************************************************** */
 
+/* ************************************************************************** *
+ * TODO: Move position rectangle into class Texture. From: class Label
+ *       Implement a global switch to alter texture blending (for debugging)
+ * ************************************************************************** */
 
 bool
 initialize([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])

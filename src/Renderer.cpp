@@ -10,6 +10,7 @@ Renderer::Renderer(SDL_Window* window, bool vsync, bool accelerated)
     if (_renderer == nullptr) {
         Logger::Debug("Unable to create renderer: {}", SDL_GetError());
     }
+    // Docs: https://wiki.libsdl.org/SDL_RenderSetLogicalSize
     //SDL_RenderSetLogicalSize(_renderer, 1280, 720);
 }
 
@@ -40,6 +41,7 @@ Renderer::GetOutputSize(void) const
     Dimensions2D size;
     if (SDL_GetRendererOutputSize(_renderer, &size.W, &size.H) != 0) {
         Logger::Debug("Unable to get renderer output size: {}", SDL_GetError());
+        size = { -1, -1 };
     }
     return size;
 }
@@ -91,6 +93,16 @@ void
 Renderer::RenderCopy(SDL_Texture* texture, const SDL_Rect* srcrect, const SDL_Rect* dstrect) const
 {
     if (SDL_RenderCopy(_renderer, texture, srcrect, dstrect) != 0) {
+        Logger::Critical("Unable to copy texture to rendering target: {}", SDL_GetError());
+    }
+}
+
+void
+Renderer::RenderCopyEx(SDL_Texture* texture, const SDL_Rect* srcrect,
+                       const SDL_Rect* dstrect, const double angle,
+                       const SDL_Point* center, const SDL_RendererFlip flip) const
+{ // NOTE: This method has not been tested
+    if (SDL_RenderCopyEx(_renderer, texture, srcrect, dstrect, angle, center, flip) != 0) {
         Logger::Critical("Unable to copy texture to rendering target: {}", SDL_GetError());
     }
 }

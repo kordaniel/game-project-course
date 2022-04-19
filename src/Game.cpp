@@ -4,12 +4,18 @@
 #include "Constants.hpp"
 #include "Geometry.hpp"
 
+// TEMP (game running state = sleeping)
+#include <chrono>
+#include <thread>
+// TEMP
+
 #include <functional>
 #include <cassert>
 
 
 Game::Game(Sdl2& sdl, ResourceManager& resourceManager)
-    : _sdl(sdl)
+    : _state(State::QUIT)
+    , _sdl(sdl)
     , _resMgr(resourceManager)
 {
     sdl.RegisterQuitEventCallback(std::bind(&Game::handleQuitEvent, this));
@@ -28,45 +34,52 @@ Game::~Game(void)
 void
 Game::Run(void)
 {
-    Point2D mousePos; // TODO: Move to member var
-
-    _state = State::MENU;
+    setGameState(State::MENU);
 
     while (_state != State::QUIT)
-    // Handle user input
-    // Update all objects
-    // Render
     {
-        mousePos = _sdl.PollEvents();
+        _mousePos = _sdl.PollEvents();
         switch (_state)
         {
-            case State::RUNNING: break;
+            case State::QUIT:
+                assert(false); // should never end up here
+                break;
             case State::MENU:
                 handleMenu();
                 break;
-            case State::PAUSED: break;
-            case State::QUIT: Logger::Critical("State changed to QUIT"); break;
-        } 
-
+            case State::RUNNING:
+                handleGame();
+                break;
+            case State::PAUSED:
+                handlePaused();
+                break;
+        }
     }
 }
 
 // PRIVATE methods
+
+void
+Game::setGameState(State state)
+{
+    _state = state;
+}
+
 void
 Game::handleQuitEvent(void)
 {
-    _state = State::QUIT;
+    setGameState(State::QUIT);
 }
 
 void
 Game::handleMenu(void)
 {
+    assert(_state == State::MENU);
+
     Input& input             = _sdl.GetInput();
     const Renderer& renderer = _sdl.GetRenderer();
     const Font& fontTitle    = _resMgr.GetFont(Constants::Fonts::TTF::PERMANENTMARKER, 128);
     const Font& fontLabels   = _resMgr.GetFont(Constants::Fonts::TTF::PERMANENTMARKER, 64);
-
-    Point2D mousePos;
 
     Menu mainMenu(
         fontTitle, Color::WithAlpha(Constants::Colors::LIGHT, 180),
@@ -84,27 +97,21 @@ Game::handleMenu(void)
 
     Menu* activeMenu = &mainMenu;
 
-    mainMenu.AddLabel("New Game", [](){ Logger::Debug("New game!"); });
-    mainMenu.AddLabel("Settings", [&activeMenu, &settingsMenu](){
-        Logger::Debug("Settings!");
-        activeMenu = &settingsMenu;
-    });
-    mainMenu.AddLabel("Help", [](){ Logger::Debug("Help"); });
+    mainMenu.AddLabel("New Game", std::bind(&Game::setGameState, this, State::RUNNING));
+    mainMenu.AddLabel("Settings", [&activeMenu, &settingsMenu](){ activeMenu = &settingsMenu; });
+    mainMenu.AddLabel("Help (NOT implemented)", [](){ Logger::Debug("Help"); });
     mainMenu.AddLabel("Quit", std::bind(&Game::handleQuitEvent, this));
 
-    settingsMenu.AddLabel("Keys");
-    settingsMenu.AddLabel("Gfxs");
-    settingsMenu.AddLabel("Back", [&activeMenu, &mainMenu]() {
-        Logger::Debug("Back");
-        activeMenu = &mainMenu;
-    });
+    settingsMenu.AddLabel("Keys (NOT implemented)");
+    settingsMenu.AddLabel("Gfxs (NOT implemented)");
+    settingsMenu.AddLabel("Back", [&activeMenu, &mainMenu]() { activeMenu = &mainMenu; });
 
     mainMenu.UpdateTextures(renderer);
     settingsMenu.UpdateTextures(renderer);
 
     while (_state == State::MENU)
     {
-        mousePos = _sdl.PollEvents();
+        _mousePos = _sdl.PollEvents();
         if (input.IsPressed(Input::KeyCode::DOWN)) {
             activeMenu->MoveSelection(Menu::SelectionDirectory::DOWN);
             activeMenu->UpdateTextures(renderer);
@@ -117,6 +124,72 @@ Game::handleMenu(void)
         }
 
         activeMenu->Render(renderer);
+        renderer.RenderPresent(true); // Clears the swapped buffer
+    }
+}
+
+void
+Game::handleGame(void)
+{
+    assert(_state == State::RUNNING);
+
+    while (_state == State::RUNNING)
+    // Handle user input
+    // Update all objects
+    // Render
+    {
+        _mousePos = _sdl.PollEvents();
+        if (_sdl.GetInput().IsPressed(Input::KeyCode::p)) {
+            setGameState(State::PAUSED);
+        }
+        if (_sdl.GetInput().IsPressed(Input::KeyCode::q)) {
+            setGameState(State::QUIT);
+        }
+        Logger::Debug("Game ON!!");
+        std::this_thread::sleep_for(std::chrono::milliseconds(250));
+    }
+}
+
+void
+Game::handlePaused(void)
+{
+    assert(_state == State::PAUSED);
+
+    Input& input             = _sdl.GetInput();
+    const Renderer& renderer = _sdl.GetRenderer();
+    const Font& fontTitle    = _resMgr.GetFont(Constants::Fonts::TTF::RUBIKBUBBLES, 128);
+    const Font& fontLabels   = _resMgr.GetFont(Constants::Fonts::TTF::RUBIKBUBBLES, 64);
+
+    Menu pauseMenu(
+        fontTitle, Color::WithAlpha(Constants::Colors::RED, 180),
+        fontLabels, Color::WithAlpha(Constants::Colors::RED, 150),
+        _resMgr.GetImage(Constants::Images::PIXNIO_RED),
+        "Game Paused !"
+    );
+
+    pauseMenu.AddLabel("Continue", std::bind(&Game::setGameState, this, State::RUNNING));
+    pauseMenu.AddLabel("Restart (NOT implemented)");
+    pauseMenu.AddLabel("Quit game", std::bind(&Game::setGameState, this, State::MENU));
+    pauseMenu.UpdateTextures(renderer);
+
+    while (_state == State::PAUSED)
+    {
+        _mousePos = _sdl.PollEvents();
+        if (input.IsPressed(Input::KeyCode::DOWN))
+        {
+            pauseMenu.MoveSelection(Menu::SelectionDirectory::DOWN);
+            pauseMenu.UpdateTextures(renderer);
+        }
+        else if (input.IsPressed(Input::KeyCode::UP))
+        {
+            pauseMenu.MoveSelection(Menu::SelectionDirectory::UP);
+            pauseMenu.UpdateTextures(renderer);
+        }
+        else if (input.IsPressed(Input::KeyCode::RETURN)) {
+            pauseMenu.ActivateSelection();
+        }
+
+        pauseMenu.Render(renderer);
         renderer.RenderPresent(true); // Clears the swapped buffer
     }
 }

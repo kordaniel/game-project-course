@@ -20,9 +20,9 @@ Window::Window(const std::string& title, int width, int height, bool fullscreen,
 
 Window::~Window(void)
 {    
+    Logger::Debug("Window \"{}\" destroyed!", GetWindowTitle());
     SDL_DestroyWindow(_window);
     _window = nullptr;
-    Logger::Debug("Window \"{}\" destroyed!", GetWindowTitle());
 }
 
 SDL_Window*
@@ -66,7 +66,7 @@ Window::IsFullscreen(void) const
 
 Uint32
 Window::combineWindowFlags(bool fullscreen, bool opengl, bool borderless,
-                          bool resizable, bool inputGrabbed)
+                           bool resizable, bool inputGrabbed)
 { // Static function
     // SDL 2.0.1+ supports the following additional flags
     // SDL_WINDOW_FULLSCREEN, _VULKAN, _METAL, _HIDDEN, _MINIMIZED, _MAXIMIXED, _ALLOW_HIGHDPI

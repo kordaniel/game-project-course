@@ -13,7 +13,7 @@ Menu::Menu(const Font& fontTitle, Color colorTitle, const Font& fontLabels,
     , _colorTitle(colorTitle)
     , _colorLabels(colorLabels)
     , _background(background)
-    , _title(_fontTitle, titleText, _colorTitle, 0, 0, false)
+    , _title(_fontTitle, titleText, _colorTitle, { 0, 0 }, false)
     , _labels()
     , _labelSelected(0)
 {
@@ -23,22 +23,22 @@ Menu::Menu(const Font& fontTitle, Color colorTitle, const Font& fontLabels,
 void
 Menu::AddLabel(const std::string& labelText, const SelectionCallback callback)
 {
-    int yPos;
+    Point2D position;
     bool selected;
 
     if (_labels.empty()) {
-        yPos = _title.GetHeight();
         _labelSelected = 0;
+        position = { 0, _title.GetDimensions().H };
         selected = true;
     } else {
         const Label& lastLabel = _labels.back().first;
-        yPos = lastLabel.GetCoords().Y + lastLabel.GetHeight();
+        position = { 0, lastLabel.GetCoords().Y + lastLabel.GetDimensions().H };
         selected = false;
     }
 
     _labels.emplace_back(
         std::piecewise_construct,
-        std::forward_as_tuple(_fontLabels, labelText, _colorLabels, 0, yPos, selected),
+        std::forward_as_tuple(_fontLabels, labelText, _colorLabels, position, selected),
         std::forward_as_tuple(callback)
     );
 }
@@ -46,10 +46,12 @@ Menu::AddLabel(const std::string& labelText, const SelectionCallback callback)
 void
 Menu::UpdateTextures(const Renderer& renderer)
 {
+    bool setCentered = true;
+
     _background.UpdateTexture(renderer);
-    _title.UpdateTexture(renderer);
+    _title.UpdateTexture(renderer, setCentered);
     for (auto& label : _labels) {
-        label.first.UpdateTexture(renderer);
+        label.first.UpdateTexture(renderer, setCentered);
     }
 }
 

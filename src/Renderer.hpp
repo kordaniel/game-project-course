@@ -34,10 +34,21 @@ public:
     /// Copy a portion of the texture to the current rendering target.
     /// @param texture The source texture to copy to the rendering target.
     /// @param srcrect The rectangle defining the portion to copy. nullptr = copy whole texture.
-    /// @param dstrect The rectangle defining the destination to copy to. nullptr = stretch texture to fill the whole target.
+    /// @param dstrect The rectangle defining the destination area to copy to. nullptr = stretch texture to fill the whole target.
     void RenderCopy(SDL_Texture* texture, const SDL_Rect* srcrect = nullptr,
                     const SDL_Rect* dstrect = nullptr) const;
 
+    /// Copy a portion of the texture to the current rendering target, with optional rotation and flipping.
+    /// NOTE: This method is untested.
+    /// @param texture The source texture to copy to the rendering target.
+    /// @param srcrect The rectangle defining the portion to copy. nullptr = copy whole texture.
+    /// @param dstrect The rectangle defining the destination area to copy to. nullptr = stretch texture to fill the whole target.
+    /// @param angle The angle in degrees that indicates the rotation in clockwise direction to apply to the dstrect.
+    /// @param center The point around which dstrect will be rotated. nullptr = rotation will be done around the center point of dstrect.
+    /// @param flip Flipping actions to perform on the texture, ORed together.
+    void RenderCopyEx(SDL_Texture* texture, const SDL_Rect* srcrect,
+                      const SDL_Rect* dstrect, const double angle,
+                      const SDL_Point* center, const SDL_RendererFlip flip) const;
 
 private:
     Uint32 getFlags(void) const;
