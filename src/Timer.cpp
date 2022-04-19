@@ -4,15 +4,16 @@
 #include <ratio>
 
 
-Timer::Timer(const std::string_view message)
-    : _message(message)
-    , _startTimepoint(std::chrono::steady_clock::now())
+Timer::Timer(const std::string_view message, bool autoLogElapsedAtDestruction)
+    : _startTimepoint(std::chrono::steady_clock::now())
+    , _message(message)
+    , _autoLog(autoLogElapsedAtDestruction)
 {
     //
 }
 
-Timer::Timer(void)
-    : Timer("")
+Timer::Timer(bool autoLogElapsedAtDestruction)
+    : Timer("", autoLogElapsedAtDestruction)
 {
     //
 }
@@ -21,7 +22,9 @@ Timer::~Timer(void)
 {
     std::chrono::time_point<std::chrono::steady_clock> endTimepoint
         = std::chrono::steady_clock::now();
-    processResult(endTimepoint);
+    if (_autoLog) {
+        processResult(endTimepoint);
+    }
 }
 
 void

@@ -8,8 +8,8 @@
 class Timer
 {
 public:
-    Timer(const std::string_view message);
-    Timer(void);
+    Timer(const std::string_view message, bool autoLogElapsedAtDestruction = true);
+    Timer(bool autoLogElapsedAtDestruction = true);
     Timer(const Timer& other) = delete; // Copy constructor
     Timer(Timer&& other)      = delete; // Move constructor
     ~Timer(void);
@@ -27,8 +27,9 @@ private:
     inline static constexpr std::string_view MESSAGE_FORMAT      = "{}: {}{}.";
     inline static constexpr std::string_view MESSAGE_SUFFIXES[4] = { "ns", "us", "ms", "s" };
 
-    const std::string_view                             _message;
     std::chrono::time_point<std::chrono::steady_clock> _startTimepoint;
+    const std::string_view                             _message;
+    bool                                               _autoLog;
 
 };
 
