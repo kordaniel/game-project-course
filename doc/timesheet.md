@@ -19,5 +19,6 @@
 | 3h   | 2022-04-19 | Implement game states: MENU, PAUSED (With menu), RUNNING (loop that sleeps), QUIT |
 | 1h   | 2022-04-19 | Refactor Renderer, Texture. Add wrappers for sdl draw functions. Add class Rectangle |
 | .5h  | 2022-04-19 | Add Timer class |
-| 30.5h|            | Total time spent |
+| .5h  | 2022-04-21 | Add GameObject class skeleton |
+| 31h  |            | Total time spent |
 
