@@ -19,6 +19,7 @@ _TESTS=(
     "ColorTest"
     "GeometryTest"
     "LoggerTest"
+    "TimetoolsTest"
 )
 
 if [ ! -d "${_BUILDDIR}" ]; then

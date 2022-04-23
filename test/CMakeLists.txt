@@ -46,3 +46,15 @@ add_test(
     NAME    "${GeometryTest}"
     COMMAND "${GeometryTest}"
 )
+
+set(TimetoolsTest "TimetoolsTest")
+set(TimetoolsTestSources
+    "TimetoolsTest.cpp"
+    "${CMAKE_SOURCE_DIR}/src/Timetools.cpp"
+)
+
+add_executable("${TimetoolsTest}" "${TimetoolsTestSources}")
+add_test(
+    NAME    "${TimetoolsTest}"
+    COMMAND "${TimetoolsTest}"
+)

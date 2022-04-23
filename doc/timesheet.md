@@ -20,5 +20,6 @@
 | 1h   | 2022-04-19 | Refactor Renderer, Texture. Add wrappers for sdl draw functions. Add class Rectangle |
 | .5h  | 2022-04-19 | Add Timer class |
 | .5h  | 2022-04-21 | Add GameObject class skeleton |
-| 31h  |            | Total time spent |
+| 2h   | 2022-04-23 | Extend Timer class, add classes Timestep and Gameloop timer with tests |
+| 33h  |            | Total time spent |
 
