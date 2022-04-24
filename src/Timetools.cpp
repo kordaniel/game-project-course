@@ -1,13 +1,37 @@
 #include "Timetools.hpp"
 #include "Logger.hpp"
 
+#include <cmath>
 #include <ratio>
+#include <thread>
+
 
 Timestep::Timestep(double seconds)
     : _seconds(seconds)
 {
     //
 }
+
+bool
+Timestep::operator<(const Timestep& rhs) const { return _seconds < rhs._seconds; }
+
+bool
+Timestep::operator>(const Timestep& rhs) const { return rhs < *this; }
+
+void
+Timestep::operator+=(const Timestep& rhs) { _seconds += rhs._seconds; }
+
+void
+Timestep::operator-=(const Timestep& rhs) { _seconds -= rhs._seconds; }
+
+void
+Timestep::operator+=(double seconds) { _seconds += seconds; }
+
+void
+Timestep::operator-=(double seconds) { _seconds -= seconds; }
+
+bool
+Timestep::IsNonPositive(void) const { return !(_seconds > 0.0); }
 
 double
 Timestep::GetSeconds(void) const { return _seconds; }
@@ -96,8 +120,10 @@ Timer::processResult(const std::chrono::time_point<std::chrono::steady_clock>& e
     }
 }
 
-GameloopTimer::GameloopTimer(size_t updateFreq, double updateTimeMax)
-    : _dtUpdate(DUR_ONE_SECOND / updateFreq)
+
+GameloopTimer::GameloopTimer(size_t iterationFreq, size_t updateFreq, double updateTimeMax)
+    : _targetTime(DUR_ONE_SECOND / iterationFreq)
+    , _dtUpdate(DUR_ONE_SECOND / updateFreq)
     , _accumulatedLag(Duration(0.0))
     , _timePrevious(Clock::now())
     , _timeCurrent(Clock::now())
@@ -135,6 +161,12 @@ GameloopTimer::ShouldDoUpdates(void)
 }
 
 Timestep
+GameloopTimer::GetIterationTargetTime(void) const
+{
+    return { _targetTime.count() };
+}
+
+Timestep
 GameloopTimer::GetUpdateDeltaTime(void) const
 {
     return { _dtUpdate.count() };
@@ -144,4 +176,66 @@ Timestep
 GameloopTimer::GetLag(void) const
 {
     return { _accumulatedLag.count() };
+}
+
+Timestep
+GameloopTimer::GetSleeptime(void) const
+{
+    return { (_targetTime - Duration{Clock::now() - _timePrevious}).count() };
+}
+
+
+TimeEstimate::TimeEstimate(Timestep estimate, double mean)
+    : _estimate(estimate)
+    , _mean(mean)
+    , _m2(0.0)
+    , _count(1)
+{
+    //
+}
+
+void
+TimeEstimate::AddTimestep(Timestep ts)
+{
+    double delta = static_cast<double>(ts) - _mean;
+
+    ++_count;
+    _mean += delta / static_cast<double>(_count);
+    _m2   += delta * (static_cast<double>(ts) - _mean);
+    _estimate = _mean + std::sqrt(_m2 / static_cast<double>(_count - 1)); // mean + stddev
+}
+
+Timestep
+TimeEstimate::GetEstimate(void) const
+{
+    return { _estimate };
+}
+
+size_t
+TimeEstimate::GetCount(void) const { return _count; }
+
+
+void
+thread::PreciseSleep(Timestep seconds, TimeEstimate& estimate)
+{
+    using std::chrono::milliseconds;
+    using Clock      = std::chrono::steady_clock;
+    using Duration   = std::chrono::duration<double>;
+    using Time_point = std::chrono::time_point<Clock, Duration>;
+
+    // Sleep in ~1ms chuncks until the remaining sleeping time gets smaller
+    // than the estimated actual sleeping time counting for OS scheduling.
+    while (seconds > estimate.GetEstimate())
+    {
+        Time_point startTime = Clock::now();
+        std::this_thread::sleep_for(milliseconds(1));
+        Time_point endTime = Clock::now();
+        Timestep sleepDuration{ (endTime - startTime).count() };
+        seconds -= sleepDuration;
+        estimate.AddTimestep(sleepDuration);
+    }
+
+    // Spinlock the remaining time.
+    Time_point startTime = Clock::now();
+    while ((Time_point{Clock::now()} - startTime).count() < static_cast<double>(seconds));
 }
