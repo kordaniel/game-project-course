@@ -64,9 +64,10 @@ target_include_directories("${EXECNAME}"
     PRIVATE "${sdl2-image_SOURCE_DIR}"
 )
 
-# Use header-only fmt:
+# Use header-only fmt and glm:
 target_link_libraries("${EXECNAME}" PRIVATE
     PRIVATE fmt::fmt-header-only
+    PRIVATE glm
     PRIVATE SDL2::SDL2
     PRIVATE SDL2_ttf
     PRIVATE SDL2_image

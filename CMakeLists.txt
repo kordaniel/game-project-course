@@ -8,8 +8,10 @@ FATAL ERROR: In-source builds are not allowed.
 ")
 endif()
 
-# Includes
+# Include & config fetchcontent
 include(FetchContent)
+set(FETCHCONTENT_QUIET OFF)
+set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
 
 # Set build path to ./bin
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
@@ -61,6 +63,15 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     FetchContent_MakeAvailable(googletest)
 endif()
 
+# GLM
+#add_compile_definitions(GLM_FORCE_MESSAGES) # Display information at build time
+FetchContent_Declare(
+    glm
+    GIT_REPOSITORY https://github.com/g-truc/glm.git
+    GIT_TAG 0.9.9.7
+    GIT_PROGRESS TRUE
+)
+
 # SDL2
 FetchContent_Declare(
     sdl2-main
@@ -85,7 +96,7 @@ FetchContent_Declare(
     GIT_PROGRESS TRUE
 )
 
-FetchContent_MakeAvailable(fmt sdl2-main sdl2-ttf sdl2-image)
+FetchContent_MakeAvailable(fmt glm sdl2-main sdl2-ttf sdl2-image)
 
 # Set sourcecode path, both cpp and header-files live here
 add_subdirectory("${PROJECT_SOURCE_DIR}/src")
