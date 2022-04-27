@@ -3,6 +3,8 @@
 
 #include <utility> // std::pair
 #include <string>
+#include <string_view>
+
 
 namespace std
 {
@@ -24,5 +26,16 @@ namespace std
     };
 
 } // end namespace std
+
+namespace Helpers
+{
+    /// Mutates the original string and returns a reference to the same string object. Replaces all occurrences of
+    /// what with the argument with.
+    /// @param strBuf The string to mutate.
+    /// @param what The substring to be replaced.
+    /// @param with The substring to replace with.
+    std::string& ReplaceAll(std::string& strBuf, std::string_view what, std::string_view with);
+
+} // end namespace Helpers
 
 #endif // HELPERS_HPP
