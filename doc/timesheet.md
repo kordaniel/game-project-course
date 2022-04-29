@@ -23,5 +23,6 @@
 | 2h   | 2022-04-23 | Extend Timer class, add classes Timestep and Gameloop timer with tests |
 | 2h   | 2022-04-24 | Extend Timetools module, add class TimeEstimate which implements Welford's online algorithm that computes an estimation, PreciseSleep function |
 | 1h   | 2022-04-26 | Add GLM library, start working on gameplay |
-| 36h  |            | Total time spent |
+| 3h   | 2022-04-28 | Add Physics engine with tests |
+| 39h  |            | Total time spent |
 

@@ -58,3 +58,18 @@ add_test(
     NAME    "${TimetoolsTest}"
     COMMAND "${TimetoolsTest}"
 )
+
+set(PhysicsTest "PhysicsTest")
+set(PhysicsTestSources
+    "PhysicsTest.cpp"
+    "${CMAKE_SOURCE_DIR}/src/Helpers.cpp"
+    "${CMAKE_SOURCE_DIR}/src/Logger.cpp"
+    "${CMAKE_SOURCE_DIR}/src/Timetools.cpp"
+    "${CMAKE_SOURCE_DIR}/src/Physics.cpp"
+)
+
+add_executable("${PhysicsTest}" "${PhysicsTestSources}")
+add_test(
+    NAME    "${PhysicsTest}"
+    COMMAND "${PhysicsTest}"
+)

@@ -65,6 +65,7 @@ endif()
 
 # GLM
 #add_compile_definitions(GLM_FORCE_MESSAGES) # Display information at build time
+add_compile_definitions(GLM_FORCE_RADIANS)
 FetchContent_Declare(
     glm
     GIT_REPOSITORY https://github.com/g-truc/glm.git

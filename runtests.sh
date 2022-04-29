@@ -19,6 +19,7 @@ _TESTS=(
     "ColorTest"
     "GeometryTest"
     "LoggerTest"
+    "PhysicsTest"
     "TimetoolsTest"
 )
 
