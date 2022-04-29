@@ -62,8 +62,8 @@ public:
         x         = SDLK_x,
         y         = SDLK_y,
         z         = SDLK_z,
-        LEFT      = SDLK_RIGHT,
-        RIGHT     = SDLK_LEFT,
+        LEFT      = SDLK_LEFT,
+        RIGHT     = SDLK_RIGHT,
         DOWN      = SDLK_DOWN,
         UP        = SDLK_UP
     };
