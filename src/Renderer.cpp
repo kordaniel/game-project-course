@@ -46,6 +46,18 @@ Renderer::GetOutputSize(void) const
     return size;
 }
 
+Dimensions2D
+Renderer::GetMaxTextureSize(void) const
+{ // TODO: Refactor SDL_GetRenderInfo to own wrapper, also refactor getFlags to use wrapper
+    SDL_RendererInfo info;
+    if (SDL_GetRendererInfo(_renderer, &info) != 0) {
+        Logger::Debug("Unable to fill SDL_Rendererinfo struct: {}", SDL_GetError());
+        return { -1, -1 };
+    }
+
+    return { info.max_texture_width, info.max_texture_height };
+}
+
 bool
 Renderer::GetIsVsyncced(void) const
 {
@@ -98,6 +110,14 @@ Renderer::SetDrawBlendMode(BlendMode blendMode) const
 }
 
 void
+Renderer::SetVsync(bool enabled) const
+{ // TODO: Adaptive vsync - https://wiki.libsdl.org/SDL_GL_SetSwapInterval
+    if (SDL_GL_SetSwapInterval((enabled ? 1 : 0)) != 0) {
+        Logger::Debug("Unable to set vsync to {}: {}", (enabled ? 1 : 0), SDL_GetError());
+    }
+}
+
+void
 Renderer::RenderCopy(SDL_Texture* texture, const SDL_Rect* srcrect, const SDL_Rect* dstrect) const
 {
     if (SDL_RenderCopy(_renderer, texture, srcrect, dstrect) != 0) {
@@ -117,10 +137,55 @@ Renderer::RenderCopyEx(SDL_Texture* texture, const SDL_Rect* srcrect,
 
 void
 Renderer::DrawPoint(Point2D position) const
-{ // NOTE: This method has not been tested
+{
     if (SDL_RenderDrawPoint(_renderer, position.X, position.Y) != 0) {
         Logger::Debug("Renderer was not able to draw a point to the coords {}x{}: {}",
                       position.X, position.Y, SDL_GetError());
+    }
+}
+
+void
+Renderer::DrawCircle(const Point2D posCenter, int radius) const
+{
+    const int diameter = radius * 2;
+    int x   = radius - 1;
+    int y   = 0;
+    int dx  = 1;
+    int dy  = 1;
+    int err = dx - diameter;
+
+    while (x >= y)
+    {
+        DrawPoint({ posCenter.X + x, posCenter.Y - y });
+        DrawPoint({ posCenter.X + x, posCenter.Y + y });
+        DrawPoint({ posCenter.X - x, posCenter.Y - y });
+        DrawPoint({ posCenter.X - x, posCenter.Y + y });
+        DrawPoint({ posCenter.X + y, posCenter.Y - x });
+        DrawPoint({ posCenter.X + y, posCenter.Y + x });
+        DrawPoint({ posCenter.X - y, posCenter.Y - x });
+        DrawPoint({ posCenter.X - y, posCenter.Y + x });
+
+        if (err <= 0)
+        {
+            y++;
+            err += dy;
+            dy  += 2;
+        }
+
+        if (err > 0)
+        {
+            x--;
+            dx += 2;
+            err += dx - diameter;
+        }
+    }
+}
+
+void
+Renderer::DrawCircleFilled(const Point2D posCentre, int radius) const
+{ // TODO: Delete or implement a proper algorithm for filled circles
+    while (radius > 0) {
+        DrawCircle(posCentre, radius--);
     }
 }
 

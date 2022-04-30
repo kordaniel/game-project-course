@@ -5,6 +5,7 @@
 
 #include "Color.hpp"
 #include "Geometry.hpp"
+#include "Timetools.hpp"
 
 
 class Renderer
@@ -22,11 +23,12 @@ public:
     Renderer(Renderer&& other)      = delete;
     ~Renderer(void);
 
-    uint32_t      GetFlags(void)       const;
-    Dimensions2D  GetLogicalSize(void) const;
-    Dimensions2D  GetOutputSize(void)  const;
-    bool          GetIsVsyncced(void)  const;
-    SDL_Renderer* GetSdlRenderer(void) const;
+    uint32_t      GetFlags(void)          const;
+    Dimensions2D  GetLogicalSize(void)    const;
+    Dimensions2D  GetOutputSize(void)     const;
+    Dimensions2D  GetMaxTextureSize(void) const;
+    bool          GetIsVsyncced(void)     const;
+    SDL_Renderer* GetSdlRenderer(void)    const;
 
     /// Swap framebuffers, "draw".
     /// @param: doRenderClear Has the default value true. If this is true, then
@@ -39,6 +41,7 @@ public:
     void SetRenderDrawColor(Color c)              const;
     void SetLogicalSize(Dimensions2D size)        const;
     void SetDrawBlendMode(BlendMode blendMode)    const;
+    void SetVsync(bool enabled)                   const;
 
     /// Copy a portion of the texture to the current rendering target.
     /// @param texture The source texture to copy to the rendering target.
@@ -62,6 +65,9 @@ public:
     /// Draw a point on the current rendering target.
     void DrawPoint(Point2D position) const;
 
+    void DrawCircle(const Point2D posCentre, int radius)       const;
+    void DrawCircleFilled(const Point2D posCentre, int radius) const;
+
     /// Draw a line on the current rendering target.
     /// @param point1 The X,Y coords of the start point.
     /// @param point2 The X,Y coords of the end point.
@@ -80,6 +86,17 @@ private:
 private:
     SDL_Renderer* _renderer;
 
+};
+
+class DrawableObject
+{
+public:
+    DrawableObject(void) = default;
+    DrawableObject(const DrawableObject& other) = delete;
+    DrawableObject(DrawableObject&& other)      = delete;
+    virtual ~DrawableObject(void) = default;
+
+    virtual void Draw(const Renderer& renderer, Timestep it) const = 0;
 };
 
 #endif // RENDERER_HPP
