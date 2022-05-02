@@ -167,6 +167,12 @@ GameloopTimer::GetIterationTargetTime(void) const
 }
 
 Timestep
+GameloopTimer::GetIterationElapsedTime(void) const
+{
+    return { Duration{Clock::now() - _timeCurrent}.count() };
+}
+
+Timestep
 GameloopTimer::GetUpdateDeltaTime(void) const
 {
     return { _dtUpdate.count() };
@@ -181,7 +187,7 @@ GameloopTimer::GetLag(void) const
 Timestep
 GameloopTimer::GetSleeptime(void) const
 {
-    return { (_targetTime - Duration{Clock::now() - _timePrevious}).count() };
+    return { (_targetTime - Duration{Clock::now() - _timeCurrent}).count() };
 }
 
 

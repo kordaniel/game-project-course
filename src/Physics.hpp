@@ -2,20 +2,20 @@
 #define PHYSICS_HPP
 
 #include "Timetools.hpp"
+#include "Geometry.hpp"
 
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 #include <glm/mat4x4.hpp>
-#include <string_view>
 
 
 class PhysicsObject;
 
 
 /// Physics engine. Computes gravity & friction and updates objects that implement
-/// the interface PhysicsObject based on deltaTime.
+/// the interface PhysicsObject.
 /// NOTE: Currently all operations are defined only for the XY 2D-plane even if all
-/// data structures are chosen with 3D in mind.
+/// data structures are chosen with a 3-dimensional space in mind.
 /// Definitions:
 /// - (0, 0) is the upper left corner
 /// - All directions defaults to north, so all angles are computed from this direction
@@ -23,8 +23,6 @@ class Physics
 {
 public:
     enum class Direction { WEST, NORTH, EAST, SOUTH };
-
-    static void LogMat4(const glm::mat4& m, const std::string_view message = "");
 
 public:
     /// Constructor
@@ -41,8 +39,9 @@ public:
     Physics(Physics&& other)      = delete;
     ~Physics(void) = default;
 
-    void Update(PhysicsObject& transform, Timestep dt) const;
-
+    void Update(PhysicsObject& physicsObject) const;
+    const glm::vec3& GetGravity(void)  const;
+    const glm::vec3& GetFriction(void) const;
     void SetGravity(float gravityY);
     void SetGravity(float gravityX, float gravityY);
     void SetFriction(float friction);
@@ -50,9 +49,12 @@ public:
 
 public:
     // Basis vectors, must be unit vectors with length = 1. This is not asserted!
-    constexpr inline static glm::vec3 basisXAxis = glm::vec3(1.0f, 0.0f, 0.0f); // Rotates on YZ-plane
-    constexpr inline static glm::vec3 basisYAxis = glm::vec3(0.0f, 1.0f, 0.0f); // Rotates on XZ-plane
-    constexpr inline static glm::vec3 basisZAxis = glm::vec3(0.0f, 0.0f, 1.0f); // Rotates on XY-plane
+    constexpr inline static glm::vec3 BasisXAxis = glm::vec3(1.0f, 0.0f, 0.0f); // Rotates on YZ-plane
+    constexpr inline static glm::vec3 BasisYAxis = glm::vec3(0.0f, 1.0f, 0.0f); // Rotates on XZ-plane
+    constexpr inline static glm::vec3 BasisZAxis = glm::vec3(0.0f, 0.0f, 1.0f); // Rotates on XY-plane
+
+    // Identity 4x4 matrix
+    constexpr inline static glm::mat4 Mat4Id = glm::mat4(1.0f);
 
 private:
     glm::vec3 _gravity;
@@ -64,25 +66,30 @@ private:
 
 class PhysicsObject
 {
-    friend void Physics::Update(PhysicsObject&, Timestep) const;
+    friend void Physics::Update(PhysicsObject&) const;
 
 public:
-    PhysicsObject(const glm::vec3& position, const glm::vec3& velocity);
+    PhysicsObject(const glm::vec3& position, const glm::vec3& velocity, const glm::vec3& acceleration);
     PhysicsObject(const PhysicsObject& other) = delete;
     PhysicsObject(PhysicsObject&& other)      = delete;
     virtual ~PhysicsObject(void) = default;
 
-    virtual void UpdatePhysics(const Physics& physics, Timestep dt) = 0;
+    /// @param physicsEngine The physics engine that will update the acceleration vector of this object.
+    /// @param boundaries Boundaries for XY coords; .X/.Y = top left, left, .W/.H == bottom right.
+    /// @param dt The deltatime length for the update.
+    virtual void UpdatePhysics(const Physics& physicsEngine, RectangleF boundaries, Timestep dt) = 0;
 
-    void ApplyForce(Physics::Direction direction, float force, Timestep dt);
-    void ApplyForce(float angleDegrees, float force, Timestep dt);
+    void ApplyForce(Physics::Direction direction, float force);
+    void ApplyForce(float angleDegrees, float force);
 
-    const glm::vec4& GetPosition(void) const;
-    const glm::vec4& GetVelocity(void) const;
+    const glm::vec4& GetPosition(void)     const;
+    const glm::vec4& GetVelocity(void)     const;
+    const glm::mat4& GetAcceleration(void) const;
 
 protected:
     glm::vec4 _position;
     glm::vec4 _velocity;
+    glm::mat4 _acceleration;
 
 };
 

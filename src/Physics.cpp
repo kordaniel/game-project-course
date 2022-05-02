@@ -5,23 +5,9 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/transform.hpp>
 #include <glm/exponential.hpp>
-#include <glm/gtx/string_cast.hpp>
 
 #include <cassert>
 
-
-void
-Physics::LogMat4(const glm::mat4& m, const std::string_view message)
-{ // Static function
-    std::string matStr = glm::to_string(m);
-    Helpers::ReplaceAll(matStr, "), ", ")\n");
-    Helpers::ReplaceAll(matStr, "((", "(\n(");
-    if (message.empty()) {
-        Logger::Debug("{}", matStr);
-    } else {
-        Logger::Debug("{}:\n{}", message, matStr);
-    }
-}
 
 Physics::Physics(float gravityY, float friction)
     : Physics(0.0f, gravityY, friction)
@@ -38,20 +24,25 @@ Physics::Physics(float gravityX, float gravityY, float friction)
 }
 
 void
-Physics::Update(PhysicsObject& physicsOb, Timestep dt) const
+Physics::Update(PhysicsObject& physicsObject) const
 {
-    glm::mat4 gravity = glm::translate(
-        glm::mat4(1.0f),
-        static_cast<float>(dt) * _gravity
+    glm::mat4 scaleTrans = glm::scale(
+        glm::translate(glm::mat4(1.0f), _gravity),
+        _friction
     );
+    physicsObject._acceleration *= scaleTrans;
+}
 
-    // TODO: Vectorize or use cached friction & gravity mat4, update only when args change
-    glm::mat4 friction = glm::mat4(1.0f);
-    friction[0].x = glm::pow(_friction.x, static_cast<float>(dt));
-    friction[1].y = glm::pow(_friction.y, static_cast<float>(dt));
-    friction[2].z = glm::pow(_friction.z, static_cast<float>(dt));
+const glm::vec3&
+Physics::GetGravity(void) const
+{
+    return _gravity;
+}
 
-    physicsOb._velocity = gravity * friction * physicsOb._velocity;
+const glm::vec3&
+Physics::GetFriction(void) const
+{
+    return _friction;
 }
 
 void
@@ -83,34 +74,37 @@ Physics::SetFriction(float frictionX, float frictionY, float frictionZ)
 }
 
 
-PhysicsObject::PhysicsObject(const glm::vec3& position, const glm::vec3& velocity)
+PhysicsObject::PhysicsObject(const glm::vec3& position, const glm::vec3& velocity, const glm::vec3& acceleration)
     : _position(glm::vec4(position, 1.0f))
     , _velocity(glm::vec4(velocity, 1.0f))
+    , _acceleration(glm::translate(glm::mat4(1.0f), acceleration))
 {
     //
 }
 
 void
-PhysicsObject::ApplyForce(Physics::Direction direction, float force, Timestep dt)
+PhysicsObject::ApplyForce(Physics::Direction direction, float force)
 {
-    force *= static_cast<float>(dt);
     switch (direction)
     {
-        case Physics::Direction::WEST:  _velocity.x -= force; break;
-        case Physics::Direction::NORTH: _velocity.y -= force; break;
-        case Physics::Direction::EAST:  _velocity.x += force; break;
-        case Physics::Direction::SOUTH: _velocity.y += force; break;
+        case Physics::Direction::WEST:  _acceleration[3].x -= force; break;
+        case Physics::Direction::NORTH: _acceleration[3].y -= force; break;
+        case Physics::Direction::EAST:  _acceleration[3].x += force; break;
+        case Physics::Direction::SOUTH: _acceleration[3].y += force; break;
     }
 }
 
 void
-PhysicsObject::ApplyForce(float angleDegrees, float force, Timestep dt)
+PhysicsObject::ApplyForce(float angleDegrees, float force)
 {
-    glm::mat4 transpose(1.0f);
+    // TODO: Refactor, get rid of "manual" building of translation matrix
 
     // last argument (&v) defines the plane we want to rotate around and it must be a unit vector.
-    transpose = glm::rotate(transpose, glm::radians(angleDegrees), Physics::basisZAxis);
-    _velocity += transpose * glm::vec4(0.0f, -static_cast<float>(dt) * force, 0.0f, 0.0f);
+    glm::mat4 rotation = glm::rotate(Physics::Mat4Id, glm::radians(angleDegrees), Physics::BasisZAxis);
+    glm::vec4 transVec = rotation * glm::vec4(0.0f, -force, 0.0f, 1.0f);
+    glm::mat4 translation = glm::translate(Physics::Mat4Id, glm::vec3(transVec.x, transVec.y, transVec.z));
+
+    _acceleration *= translation;
 }
 
 const glm::vec4&
@@ -118,3 +112,6 @@ PhysicsObject::GetPosition(void) const { return _position; }
 
 const glm::vec4&
 PhysicsObject::GetVelocity(void) const { return _velocity; }
+
+const glm::mat4&
+PhysicsObject::GetAcceleration(void) const { return _acceleration; }

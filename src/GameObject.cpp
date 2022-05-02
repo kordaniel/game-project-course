@@ -1,72 +1,87 @@
 #include "GameObject.hpp"
+#include "Logger.hpp"
+#include "Constants.hpp"
 
-std::unique_ptr<GameObject>
-GameObject::CreatePlayer(void)
-{ // static function
-    return std::make_unique<GameObject>(
-        // args..
+
+GraphicsComponent::GraphicsComponent(const GameObject* parent)
+    : _parent(parent)
+{
+    assert(_parent != nullptr);
+}
+
+void
+GraphicsComponent::Draw(const Renderer& renderer, Timestep it) const
+{
+    renderer.SetRenderDrawColor({ Constants::Colors::RED });
+    renderer.DrawCircleFilled(
+         _parent->_transform.GetScreenCoords(it),
+         static_cast<int>(_parent->_radius + 0.5f)
     );
 }
 
-GraphicsComponent::GraphicsComponent(void)
-{
-
+std::unique_ptr<GameObject>
+GameObject::CreatePlayer(float posX, float posY, float radius)
+{ // static function
+    return std::make_unique<GameObject>(posX, posY, radius);
 }
 
-GameObject::GameObject(void)
-    : _cmpGfx()
-    , _cmpTrsfrm(*this)
-    , _cmpInpPtr(nullptr)
-    //, _velocity(0)
-    //, _position{ 0, 0 }
+GameObject::GameObject(float posX, float posY, float radius)
+    : _input()
+    , _graphics(this)
+    , _transform(posX, posY)
+    , _radius(radius)
 {
     //
 }
 
 bool
-GameObject::IsAlive(void) const
+GameObject::IsAlive(void) const { return true; }
+
+float
+GameObject::GetRadius(void) const { return _radius; }
+
+const glm::vec4&
+GameObject::GetPosition(void) const { return _transform.GetPosition(); }
+
+const glm::vec4&
+GameObject::GetVelocity(void) const { return _transform.GetVelocity(); }
+
+void
+GameObject::SetRadius(float radius)
 {
-    return true;
+    _radius = radius;
 }
 
 void
-GameObject::Update(void) const
+GameObject::UpdateRadius(float factor)
 {
-    //
+    _radius *= factor;
 }
 
 void
-GameObject::Render(void) const
+GameObject::Update(const Physics& physics, Dimensions2D boundaries, Timestep dt)
 {
-    //
-}
-
-GameObject::Transform::Transform(GameObject& componentOwner)
-    : _owner(componentOwner)
-    , _X(0.0)
-    , _Y(0.0)
-    , _V(0.0)
-{
-    //
-}
-
-double
-GameObject::Transform::GetX(void) const { return _X; }
-
-double
-GameObject::Transform::GetY(void) const { return _Y; }
-
-Point2D
-GameObject::Transform::GetPosition(void) const
-{
-    return {
-        static_cast<int>(_X + 0.5),
-        static_cast<int>(_Y + 0.5)
-    };
+    _transform.UpdatePhysics(
+        physics,
+        { _radius, _radius, boundaries.W - _radius, boundaries.H - _radius },
+        dt
+    );
 }
 
 void
-GameObject::Transform::Update(void)
+GameObject::ApplyForce(Physics::Direction direction, float force)
 {
-    // TODO: Update
+    _transform.ApplyForce(direction, force);
+}
+
+void
+GameObject::ApplyForce(float angleDegrees, float force)
+{
+    _transform.ApplyForce(angleDegrees, force);
+}
+
+void
+GameObject::Draw(const Renderer& renderer, Timestep it) const
+{ // virtual override member from DrawableObject
+    _graphics.Draw(renderer, it);
 }

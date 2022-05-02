@@ -3,65 +3,78 @@
 
 #include "Geometry.hpp"
 #include "Renderer.hpp"
+#include "Timetools.hpp"
+#include "Transform.hpp"
+#include "Physics.hpp"
 
 #include <memory>
+
+
+class GameObject;
 
 
 class InputComponent
 {
 public:
-    virtual ~InputComponent(void); // TODO: = delete; // and implement derived class
+    InputComponent(void) = default;
+    virtual ~InputComponent(void) = default; // TODO: = delete; // and implement derived class
 private:
 };
 
 class GraphicsComponent
 {
 public:
-    GraphicsComponent(void);
+    GraphicsComponent(const GameObject* parent);
     GraphicsComponent(const GraphicsComponent& other) = delete;
     GraphicsComponent(GraphicsComponent&& other)      = delete;
     ~GraphicsComponent(void) = default;
+
+    void Draw(const Renderer& renderer, Timestep it) const;
+
 private:
+    const GameObject* _parent;
+
 };
 
-class GameObject
+class GameObject : public DrawableObject
 {
+    friend void GraphicsComponent::Draw(const Renderer&, Timestep) const;
 public:
-    static std::unique_ptr<GameObject> CreatePlayer(void);
-    GameObject(void);
+    static std::unique_ptr<GameObject> CreatePlayer(float posX, float posY, float radius);
+
+public:
+    GameObject(float posX, float posY, float radius);
     GameObject(const GameObject& other) = delete;
     GameObject(GameObject&& other)      = delete;
     ~GameObject(void) = default;
 
-    bool IsAlive(void) const;
-    void Update(void)  const;
-    void Render(void)  const;
+    bool  IsAlive(void)                   const;
+    float GetRadius(void)                 const;
+    const glm::vec4& GetPosition(void)    const;
+    const glm::vec4& GetVelocity(void)    const;
+
+    void SetRadius(float radius);
+    void UpdateRadius(float factor);
+
+    /// Update the status of the object.
+    /// @param physics Physics engine to use.
+    /// @param boundaries 2D rectangle specifying the min/max boundaries for the position one the XY-plane.
+    /// @param dt The deltatime length for the update.
+    void Update(const Physics& physics, Dimensions2D boundaries, Timestep dt);
+    void ApplyForce(Physics::Direction direction, float force);
+    void ApplyForce(float angleDegrees, float force);
+
+    /// Draws the object on the renderers current target buffer
+    /// @param renderer Renderer to use.
+    /// @param it Interpolation timestep for correcting position between updates.
+    virtual void Draw(const Renderer& renderer, Timestep it) const override;
 
 private:
-    class Transform
-    {
-    public:
-        Transform(GameObject& componentOwner);
-        Transform(const Transform& other) = delete;
-        Transform(Transform&& other)      = delete;
-        ~Transform(void) = default;
+    InputComponent    _input;
+    GraphicsComponent _graphics;
+    Transform         _transform;
 
-        double GetX(void)         const;
-        double GetY(void)         const;
-        Point2D GetPosition(void) const;
-
-        void Update(void);
-
-    private:
-        GameObject& _owner;
-        double _X, _Y, _V;
-    };
-
-private:
-    GraphicsComponent               _cmpGfx;
-    Transform                       _cmpTrsfrm;
-    std::unique_ptr<InputComponent> _cmpInpPtr; // TODO: Remove pointer(?)
-    
+    float             _radius;
 
 };
 

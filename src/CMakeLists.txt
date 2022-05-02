@@ -13,11 +13,13 @@ set(headers
     "Label.hpp"
     "Logger.hpp"
     "Menu.hpp"
+    "Physics.hpp"
     "Renderer.hpp"
     "ResourceManager.hpp"
     "Sdl2.hpp"
     "Texture.hpp"
     "Timetools.hpp"
+    "Transform.hpp"
     "Window.hpp"
 )
 
@@ -33,13 +35,15 @@ set(sources
     "Input.cpp"
     "Label.cpp"
     "Logger.cpp"
+    "Main.cpp"
     "Menu.cpp"
+    "Physics.cpp"
     "Renderer.cpp"
     "ResourceManager.cpp"
     "Sdl2.cpp"
-    "Main.cpp"
     "Texture.cpp"
     "Timetools.cpp"
+    "Transform.cpp"
     "Window.cpp"
 )
 

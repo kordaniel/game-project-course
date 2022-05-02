@@ -99,6 +99,9 @@ public:
     /// Returns the (fixed) target time for one loop iteration, which is computed from the iterationFreq ctor argument.
     Timestep GetIterationTargetTime(void) const;
 
+    /// Returns the time that has passed since InitIteration() was called.
+    Timestep GetIterationElapsedTime(void) const;
+
     /// Returns the (fixed) deltatime, which is computed from the target update frequency.
     Timestep GetUpdateDeltaTime(void) const;
 
