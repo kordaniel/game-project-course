@@ -14,13 +14,22 @@ Label::Label(const Font& font, std::string text, Color color, Point2D position, 
             _font.GetFont(),
             _text.c_str(),
             {
-                static_cast<Uint8>(2*color.r),
-                static_cast<Uint8>(2*color.g),
-                static_cast<Uint8>(2*color.b),
-                color.a
+                color.r,
+                color.g,
+                color.b,
+                static_cast<Uint8>(color.a > 32 ? 0.75 * color.a : 2 * color.a)
             }
         ), // Not selected
-        TTF_RenderText_Solid(_font.GetFont(), _text.c_str(), { color.r/2, color.g/2, color.b/2, color.a } ) // Selected
+        TTF_RenderText_Solid(
+            _font.GetFont(),
+            _text.c_str(),
+            {
+                color.r,
+                color.g,
+                color.b,
+                color.a
+            }
+        ) // Selected
     })
     , _textRectangles{ {
         { position.X, position.Y, _textSurfaces[0]->w, _textSurfaces[0]->h }, // Not selected

@@ -31,6 +31,8 @@ void
 Texture::CreateTexture(const Renderer& renderer, SDL_Surface* surface)
 {
     destroyTexture();
+    //assert(surface->w <= renderer.GetMaxTextureSize().W);
+    //assert(surface->h <= renderer.GetMaxTextureSize().H);
     _texture = SDL_CreateTextureFromSurface(renderer.GetSdlRenderer(), surface);
     if (_texture == nullptr) {
         Logger::Critical("Unable to create texture from surface: {}", SDL_GetError());
