@@ -46,7 +46,8 @@ initialize([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     return true;
 }
 
-int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
+int
+main(int argc, char* argv[])
 {
     const std::string SCREEN_TITLE("Game project");
     constexpr int     SCREEN_WIDTH  = 1280;

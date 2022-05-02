@@ -3,12 +3,13 @@
 
 #include "Sdl2.hpp"
 #include "ResourceManager.hpp"
+#include "Geometry.hpp"
 
 
 class Game
 {
 public:
-    Game(Sdl2& sdl, ResourceManager& resourceManager);
+    Game(Sdl2& sdl, ResourceManager& resourceManager, int width = 1280, int height = 720);
     Game(const Game& other) = delete; // Copy constructor
     Game(Game&& other)      = delete; // Move constructor
     ~Game(void);
@@ -25,6 +26,7 @@ private:
     void handlePaused(void);
 
 private:
+    Dimensions2D     _arenaSize;
     State            _state;
     Sdl2&            _sdl;
     ResourceManager& _resMgr;

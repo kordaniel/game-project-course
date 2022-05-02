@@ -19,4 +19,9 @@ struct Rectangle
     int X, Y, W, H;
 };
 
+struct RectangleF
+{
+    float X, Y, W, H;
+};
+
 #endif // GEOMETRY_HPP

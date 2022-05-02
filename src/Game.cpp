@@ -2,19 +2,16 @@
 #include "Logger.hpp"
 #include "Menu.hpp"
 #include "Constants.hpp"
-#include "Geometry.hpp"
-
-// TEMP (game running state = sleeping)
-#include <chrono>
-#include <thread>
-// TEMP
+#include "Timetools.hpp"
+#include "GameObject.hpp"
 
 #include <functional>
 #include <cassert>
 
 
-Game::Game(Sdl2& sdl, ResourceManager& resourceManager)
-    : _state(State::QUIT)
+Game::Game(Sdl2& sdl, ResourceManager& resourceManager, int width, int height)
+    : _arenaSize{width, height}
+    , _state(State::QUIT)
     , _sdl(sdl)
     , _resMgr(resourceManager)
 {
@@ -123,6 +120,14 @@ Game::handleMenu(void)
             activeMenu->ActivateSelection();
         }
 
+        if (input.IsPressed(Input::KeyCode::v)) {
+            renderer.SetVsync(true);
+            Logger::Info("Vsync ON: {}", renderer.GetIsVsyncced());
+        } else if (input.IsPressed(Input::KeyCode::c)) {
+            renderer.SetVsync(false);
+            Logger::Info("Vsync OFF: {}", renderer.GetIsVsyncced());
+        }
+
         activeMenu->Render(renderer);
         renderer.RenderPresent(true); // Clears the swapped buffer
     }
@@ -133,21 +138,81 @@ Game::handleGame(void)
 {
     assert(_state == State::RUNNING);
 
+    Input& input = _sdl.GetInput();
+    const Renderer& renderer = _sdl.GetRenderer();
+
+    size_t gameFPS = 60;
+    size_t gameUPS = 120;
+    double updateTimeMax = 0.2; // seconds, max time to spend updating gamestate/loop iteration.
+    TimeEstimate sleepEst(0.003, 0.003);
+
+    std::unique_ptr<GameObject> ball = GameObject::CreatePlayer(
+        0.50f * static_cast<float>(_arenaSize.W),
+        0.25f * static_cast<float>(_arenaSize.H),
+        75.0f
+    );
+
+    Physics physics(100.0f, 0.9f);
+
+    GameloopTimer glt(gameFPS, gameUPS, updateTimeMax);
+
     while (_state == State::RUNNING)
-    // Handle user input
-    // Update all objects
-    // Render
     {
+        glt.InitIteration();
         _mousePos = _sdl.PollEvents();
-        if (_sdl.GetInput().IsPressed(Input::KeyCode::p)) {
+        if (input.IsPressed(Input::KeyCode::p) || input.IsPressed(Input::KeyCode::ESCAPE)) {
             setGameState(State::PAUSED);
         }
-        if (_sdl.GetInput().IsPressed(Input::KeyCode::q)) {
-            setGameState(State::QUIT);
+
+        if (input.IsPressed(Input::KeyCode::w)) {
+            ball->UpdateRadius(1.1f);
+        } else if (input.IsPressed(Input::KeyCode::s)) {
+            ball->UpdateRadius(1.0f/1.1f);
         }
-        Logger::Debug("Game ON!!");
-        std::this_thread::sleep_for(std::chrono::milliseconds(250));
+
+        if (input.IsPressed(Input::KeyCode::UP)) {
+            //if (input.IsPressed(Input::KeyCode::RIGHT)) {
+            //    ball->ApplyForce(45.0f, 150.0f);
+            //} else if (input.IsPressed(Input::KeyCode::LEFT)) {
+            //    ball->ApplyForce(315.0f, 150.0f);
+            //}
+            ball->ApplyForce(0.0f, 250.0f);
+        }
+        if (input.IsPressed(Input::KeyCode::SPACE)) {
+            ball->ApplyForce(Physics::Direction::NORTH, 500.0f);
+        }
+
+        if (input.IsPressed(Input::KeyCode::DOWN)) {
+            ball->ApplyForce(Physics::Direction::SOUTH, 50.0f);
+        }
+
+        if (input.IsPressed(Input::KeyCode::LEFT)) {
+            ball->ApplyForce(Physics::Direction::WEST, 150.0f);
+        }
+        if (input.IsPressed(Input::KeyCode::RIGHT)) {
+            ball->ApplyForce(Physics::Direction::EAST, 150.0f);
+        }
+
+        while (glt.ShouldDoUpdates())
+        {
+            ball->Update(physics, _arenaSize, glt.GetUpdateDeltaTime());
+        }
+
+        // With UPS = 120, lag grows from ~0 -> ~0.007, resets to ~0 and starts growing again
+        // Logger::Critical("LAG: {}", static_cast<float>(glt.GetLag()));
+        ball->Draw(renderer, glt.GetLag());
+
+        renderer.SetRenderDrawColor({ Constants::Colors::LIGHT });
+        renderer.RenderPresent(true); // arg == true => clears the swapped buffer
+
+        Timestep sleepTime = glt.GetSleeptime();
+        if (sleepTime.IsNonPositive()) {
+            Logger::Debug("Negative sleep time"); // Should happen only one time, at the first loop iteration.
+            continue;
+        }
+        thread::PreciseSleep(sleepTime, sleepEst);
     }
+
 }
 
 void

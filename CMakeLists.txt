@@ -17,7 +17,7 @@ set(FETCHCONTENT_UPDATES_DISCONNECTED ON)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
 
 # Set the name (for the binary) and version
-project(gameproj VERSION 0.1)
+project(gameproj VERSION 0.2)
 
 # Set the C++ version to use standard C++17
 set(CMAKE_CXX_STANDARD 17)
