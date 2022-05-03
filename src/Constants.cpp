@@ -6,6 +6,8 @@ namespace Constants::Paths
 const std::string BASEPATH            = "res/";
 const std::string FONTS               = BASEPATH + "fonts/";
 const std::string IMAGES              = BASEPATH + "images/";
+const std::string MUSICS              = BASEPATH + "musics/";
+const std::string SOUNDS              = BASEPATH + "sounds/";
 
 } // end namespace Constants::Paths
 
@@ -29,6 +31,27 @@ const std::string PIXNIO_BLUE         = IMAGES + "pixnio/PIXNIO-225682-2850x1901
 const std::string PIXNIO_RED          = IMAGES + "pixnio/PIXNIO-1730356-5198x3465.jpeg";
 
 } // end namespace Constants::Images
+
+namespace Constants::Musics
+{
+using Constants::Paths::MUSICS;
+
+const std::string BEATS_A             = MUSICS + "beats_a.ogg";
+const std::string BEATS_D             = MUSICS + "beats_d.ogg";
+const std::string EFFECTS_B           = MUSICS + "effects_b.ogg";
+const std::string GROOVY_BOOTY        = MUSICS + "groovy_booty.ogg";
+const std::string LIGHT_MUSIC         = MUSICS + "light_music.ogg";
+const std::string SPACESHIP           = MUSICS + "spaceship.ogg";
+
+} // end namespace Constants::Musics
+
+namespace Constants::Sounds
+{
+using Constants::Paths::SOUNDS;
+
+const std::string JUMP                = SOUNDS + "/8bit/03_Jump_v1.ogg";
+
+} // end namespace Constants::Sounds
 
 namespace Constants::Colors
 {

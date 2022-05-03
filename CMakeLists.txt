@@ -24,22 +24,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Set compileflags
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wshadow -pedantic -Wpedantic -Wunused-result -Wnon-virtual-dtor -Wcast-align -Woverloaded-virtual -Wconversion -Wsign-conversion -fdelete-null-pointer-checks -Wnull-dereference -Wdouble-promotion")
 # For C (SDL requires -fPIC)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
-
-# Set flags for apple clang
-if(CMAKE_CXX_COMPILER_ID MATCHES "AppleClang")
-    add_compile_options("-Wshadow-field-in-constructor" "-Wsign-compare")
-endif()
-
-# Append RELEASE / DEBUG specific flags
-list(APPEND CXX_FLAGS_RELEASE "-Werror" "-flto") # -O3 -DNDEBUG is set by cmake
-#list(APPEND CXX_FLAGS_DEBUG "-fsanitize=undefined" "-fsanitize=address" "-O0") # -g is set by cmake
-
-# Set linking flags, atleast MacOS/Xcode clang (or only ld?) requires the fsanitize flags to be set
-#set(CXX_LDFLAGS_DEBUG "-fsanitize=undefined" "-fsanitize=address" "-rdynamic")
 
 # Fetch and build libraries:
 # -------------------------
@@ -66,6 +52,10 @@ endif()
 # GLM
 #add_compile_definitions(GLM_FORCE_MESSAGES) # Display information at build time
 add_compile_definitions(GLM_FORCE_RADIANS)
+add_compile_definitions(GLM_FORCE_CXX17)
+add_compile_definitions(GLM_FORCE_EXPLICIT_CTOR) # Prevent implicit conversions
+add_compile_definitions(GLM_FORCE_SIZE_T_LENGTH)
+add_compile_definitions(GLM_FORCE_SILENT_WARNINGS)
 FetchContent_Declare(
     glm
     GIT_REPOSITORY https://github.com/g-truc/glm.git
@@ -97,7 +87,34 @@ FetchContent_Declare(
     GIT_PROGRESS TRUE
 )
 
-FetchContent_MakeAvailable(fmt glm sdl2-main sdl2-ttf sdl2-image)
+# SDL2_mixer
+set(SUPPORT_FLAC ON CACHE BOOL "Support loading FLAC music with libFLAC, override SDL2_mixer default")
+set(SUPPORT_OGG ON CACHE BOOL "Support loading OGG Vorbis music via Tremor, override SDL2_mixer default")
+#set(SUPPORT_MP3_MPG123 ON CACHE BOOL "Support loading MP3 music via MPG123, override SDL2_mixer default")
+FetchContent_Declare(
+    sdl2-mixer
+    GIT_REPOSITORY https://github.com/libsdl-org/SDL_mixer
+    GIT_TAG d79e5f3c8ca43ad6fe3c724f82f2b1258c31d4fd # 2022-05-02 version 2.0.4.xyz
+    GIT_PROGRESS TRUE
+)
+
+FetchContent_MakeAvailable(fmt glm sdl2-main sdl2-ttf sdl2-image sdl2-mixer)
+
+# Set compileflags
+# Disabled flags (glm prints lots of warnings with these): -Wconversion
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wshadow -pedantic -Wpedantic -Wunused-result -Wnon-virtual-dtor -Wcast-align -Woverloaded-virtual -Wsign-conversion -fdelete-null-pointer-checks -Wnull-dereference -Wdouble-promotion")
+
+# Set flags for apple clang
+if(CMAKE_CXX_COMPILER_ID MATCHES "AppleClang")
+    add_compile_options("-Wshadow-field-in-constructor" "-Wsign-compare")
+endif()
+
+# Append RELEASE / DEBUG specific flags
+list(APPEND CXX_FLAGS_RELEASE "-Werror" "-flto") # -O3 -DNDEBUG is set by cmake
+#list(APPEND CXX_FLAGS_DEBUG "-fsanitize=undefined" "-fsanitize=address" "-O0") # -g is set by cmake
+
+# Set linking flags, atleast MacOS/Xcode clang (or only ld?) requires the fsanitize flags to be set
+#set(CXX_LDFLAGS_DEBUG "-fsanitize=undefined" "-fsanitize=address" "-rdynamic")
 
 # Set sourcecode path, both cpp and header-files live here
 add_subdirectory("${PROJECT_SOURCE_DIR}/src")

@@ -26,5 +26,8 @@
 | 3h   | 2022-04-28 | Add Physics engine with tests |
 | 2h   | 2022-05-01 | Refactor physics, gameobject transform, drawing |
 | 2h   | 2022-05-02 | Work on physics & gameplay |
-| 43h  |            | Total time spent |
+| 2h   | 2022-05-03 | Add SDL-mixer to build system, reconfigure build system (less warnings from included 3rd party libs) |
+| 2h   | 2022-05-03 | Search for assets, check their licenses and include them in the build |
+| 2h   | 2022-05-03 | Add classes: Mixer, Music and Sound. Play music in menus&game + initial jumping sound |
+| 49h  |            | Total time spent |
 

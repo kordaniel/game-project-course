@@ -15,8 +15,11 @@
  * ************************************************************************** */
 
 /* ************************************************************************** *
- * TODO: Move position rectangle into class Texture. From: class Label
- *       Implement a global switch to alter texture blending (for debugging)
+ * TODO: - Move position rectangle into class Texture. From: class Label
+ *       - Implement a global switch to alter texture blending (for debugging)
+ *       - Implement status for keys (pressed/repeat).
+ *       - Use Mixer.hpp to handle Sound.hpp object, play & mix on assigned channels.
+ *       - Abstract Sound objects ptrs (MIX_Chunk*) to own class and use from Mixer.
  * ************************************************************************** */
 
 bool
@@ -35,6 +38,7 @@ initialize([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     Sdl2::LogVersion();
     Sdl2::LogTtfVersion();
     Sdl2::LogImageVersion();
+    Sdl2::LogMixerVersion();
     Logger::Info("This is a debug build without any optimizations");
 #endif
     Logger::Info("Loglevel is set to: {}", Logger::GetLogLevelAsString());

@@ -12,6 +12,7 @@ A mysterious project for the course called Game Project Course.
 * [SDL2](https://www.libsdl.org/)
 * [SDL_ttf](https://github.com/libsdl-org/SDL_ttf)
 * [SDL_image](https://www.libsdl.org/projects/SDL_image/)
+* [SDL_mixer](https://libsdl.org/projects/SDL_mixer/)
 * [Google Test](https://github.com/google/googletest)
 
 
@@ -42,4 +43,10 @@ foo@bar:game-project-course$ cd bin/; ./bin/gameproj[-dbg]
 ```
 Optional arguments:
 * `r` to target the optimized Release target.
-* `c` to run the tests with [ctest](https://cmake.org/cmake/help/book/mastering-cmake/chapter/Testing%20With%20CMake%20and%20CTest.html), which creates a short overview of the test results instead of running all tests individually.  
+* `c` to run the tests with [ctest](https://cmake.org/cmake/help/book/mastering-cmake/chapter/Testing%20With%20CMake%20and%20CTest.html), which creates a short overview of the test results instead of running all tests individually.
+
+## Assets
+| Asset | License |
+| ----- | ------- |
+| [41 Short, Loopable Background Music Files](https://joshuuu.itch.io/short-loopable-background-music) | "Free for personal or commercial use as long as you don't redistribute as your own. Donations also welcome! Please add **jhaeka** to your credits. :)" |
+| [8 bit SFX pack](https://maskedsound.itch.io/8-bit-sfx-pack) | "free" [- @Maskedsound](https://twitter.com/maskedsound) |

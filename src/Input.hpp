@@ -26,6 +26,8 @@ public:
         ESCAPE    = SDLK_ESCAPE,
         TAB       = SDLK_TAB,
         SPACE     = SDLK_SPACE,
+        PLUS      = SDLK_PLUS,
+        MINUS     = SDLK_MINUS,
         NUM_0     = SDLK_0,
         NUM_1     = SDLK_1,
         NUM_2     = SDLK_2,

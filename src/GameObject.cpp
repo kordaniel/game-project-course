@@ -63,7 +63,12 @@ GameObject::Update(const Physics& physics, Dimensions2D boundaries, Timestep dt)
 {
     _transform.UpdatePhysics(
         physics,
-        { _radius, _radius, boundaries.W - _radius, boundaries.H - _radius },
+        {
+            _radius,
+            _radius,
+            static_cast<float>(boundaries.W) - _radius,
+            static_cast<float>(boundaries.H) - _radius
+        },
         dt
     );
 }

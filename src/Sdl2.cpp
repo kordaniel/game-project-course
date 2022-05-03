@@ -63,10 +63,12 @@ Sdl2::Initialize(void)
     assert(s_isInitialized == false);
     assert(s_ttfIsInitialized == false);
     assert(s_imageIsInitialized == false);
+    assert(s_mixerIsInitialized == false);
 
     // sdlFlags can be set to 0 if we want to initialize the needed subsystems individually
-    Uint32 sdlFlags = SDL_INIT_EVENTS | SDL_INIT_TIMER | SDL_INIT_VIDEO;
-    int imgFlags    = IMG_INIT_JPG | IMG_INIT_PNG; // | IMG_INIT_TIF;
+    Uint32 sdlFlags = SDL_INIT_EVENTS | SDL_INIT_TIMER | SDL_INIT_VIDEO | SDL_INIT_AUDIO;
+    int imgFlags    = IMG_INIT_JPG | IMG_INIT_PNG;  // | IMG_INIT_TIF;
+    int mixFlags    = MIX_INIT_FLAC | MIX_INIT_OGG; // | MIX_INIT_MP3;
 
     s_isInitialized = SDL_Init(sdlFlags) == 0;
     if (!IsInitialized()) {
@@ -84,14 +86,14 @@ Sdl2::Initialize(void)
     }
     Logger::Debug("SDL2 TTF font Subsystem initialized!");
 
-    int inittedFlgs = IMG_Init(imgFlags); // Returns 0 on error and a bitmask of the initalized formats on success
-    if ( (inittedFlgs & imgFlags) != imgFlags)
+    int inittedImgFlgs = IMG_Init(imgFlags); // Returns 0 on error and a bitmask of the initalized formats on success
+    if ( (inittedImgFlgs & imgFlags) != imgFlags)
     {
         Logger::Critical("Unable to initialize SDL2 Image Subsystem: {}", IMG_GetError());
-        if ( (inittedFlgs & IMG_INIT_JPG) == 0) {
+        if ( (inittedImgFlgs & IMG_INIT_JPG) == 0) {
             Logger::Debug("Failed to init JPG");
         }
-        if ( (inittedFlgs & IMG_INIT_PNG) == 0) {
+        if ( (inittedImgFlgs & IMG_INIT_PNG) == 0) {
             Logger::Debug("Failed to init PNG");
         }
         //if ( (inittedFlgs & IMG_INIT_TIF) == 0) {
@@ -102,12 +104,46 @@ Sdl2::Initialize(void)
     s_imageIsInitialized = true;
     Logger::Debug("SDL2 Image Subsystem initialized!");
 
+    int inittedMixFlags = Mix_Init(mixFlags); // Mix_Quit must be called if this succeeds => isInitialized == true!
+    if ( (inittedMixFlags & mixFlags) != mixFlags)
+    {
+        Logger::Critical("Unable to initialize SDL2 Mixer Subsystem: {}", Mix_GetError());
+        if ( (inittedMixFlags & MIX_INIT_FLAC) == 0) {
+            Logger::Debug("Failed to init flac");
+        }
+        if ( (inittedMixFlags & MIX_INIT_OGG) == 0) {
+            Logger::Debug("Failed to init ogg");
+        }
+        //if ( (inittedMixFlags & MIX_INIT_MP3) == 0) {
+        //    Logger::Debug("Failed to init mp3");
+        //}
+        return false;
+    }
+    s_mixerIsInitialized = true;
+
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) != 0)
+    {
+        Logger::Debug("SDL2 Mixer was unable to open audio: {}", Mix_GetError());
+        return false;
+    }
+    Logger::Debug("SDL2 Mixer Subsystem initialized");
+
     return true;
 }
 
 void
 Sdl2::Destruct(void)
 { // Static function
+    if (MixerIsInitialized())
+    {
+        s_mixerIsInitialized = false;
+        Mix_Quit();
+        Logger::Debug("SDL2 Mixer Subsystem destructed");
+    }
+    else {
+        Logger::Debug("Unable to destruct uninitialized SDL2 Mixer Subsystem");
+    }
+
     if (ImageIsInitialized())
     {
         s_imageIsInitialized = false;
@@ -157,6 +193,11 @@ Sdl2::ImageIsInitialized(void)
     return s_imageIsInitialized;
 }
 
+bool
+Sdl2::MixerIsInitialized(void)
+{ // Static function
+    return s_mixerIsInitialized;
+}
 void
 Sdl2::LogVersion(void)
 { // Static function
@@ -188,14 +229,25 @@ Sdl2::LogImageVersion(void)
     Logger::Debug("Linked against SDL_Image version:   {}.{}.{}", linked->major, linked->minor, linked->patch);
 }
 
+void
+Sdl2::LogMixerVersion(void)
+{
+    SDL_version compiled;
+    const SDL_version* linked = Mix_Linked_Version();
+    SDL_MIXER_VERSION(&compiled);
+    Logger::Debug("Compiled against SDL_Mixer version: {}.{}.{}", compiled.major, compiled.minor, compiled.patch);
+    Logger::Debug("Linked against SDL_Mixer version:  {}.{}.{}", linked->major, linked->minor, linked->patch);
+}
+
 // TODO: Refactor to use Dimensions2D for the width & height
 Sdl2::Sdl2(const std::string& windowTitle, int windowWidth, int windowHeight)
     : _input()
     , _window(windowTitle, windowWidth, windowHeight)
     , _renderer(GetSdlWindow())
+    , _mixer()
     , _quitEventCallback(nullptr)
 {
-    //
+    assert(IsInitialized()); // Sdl2::Initialize();
 }
 
 Sdl2::~Sdl2(void)
@@ -326,4 +378,10 @@ SDL_Renderer*
 Sdl2::GetSdlRenderer(void) const
 {
     return _renderer.GetSdlRenderer();
+}
+
+Mixer&
+Sdl2::GetMixer(void)
+{
+    return _mixer;
 }

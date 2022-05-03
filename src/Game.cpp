@@ -72,6 +72,9 @@ void
 Game::handleMenu(void)
 {
     assert(_state == State::MENU);
+    _sdl.GetMixer().SetMusic(_resMgr.GetMusic(Constants::Musics::GROOVY_BOOTY));
+    _sdl.GetMixer().SetMusicVolume(1.0);
+    _sdl.GetMixer().PlayMusicFadeIn(2000);
 
     Input& input             = _sdl.GetInput();
     const Renderer& renderer = _sdl.GetRenderer();
@@ -120,23 +123,19 @@ Game::handleMenu(void)
             activeMenu->ActivateSelection();
         }
 
-        if (input.IsPressed(Input::KeyCode::v)) {
-            renderer.SetVsync(true);
-            Logger::Info("Vsync ON: {}", renderer.GetIsVsyncced());
-        } else if (input.IsPressed(Input::KeyCode::c)) {
-            renderer.SetVsync(false);
-            Logger::Info("Vsync OFF: {}", renderer.GetIsVsyncced());
-        }
-
         activeMenu->Render(renderer);
         renderer.RenderPresent(true); // Clears the swapped buffer
     }
 }
-
+#include "Sound.hpp" // TODO: TEMP TEMP DELETE !!!!!!!!!!!!!!!!
 void
 Game::handleGame(void)
 {
     assert(_state == State::RUNNING);
+
+    _sdl.GetMixer().SetMusic(_resMgr.GetMusic(Constants::Musics::BEATS_D));
+    _sdl.GetMixer().SetMusicVolume(0.5);
+    _sdl.GetMixer().PlayMusicFadeIn(2000);
 
     Input& input = _sdl.GetInput();
     const Renderer& renderer = _sdl.GetRenderer();
@@ -151,7 +150,7 @@ Game::handleGame(void)
         0.25f * static_cast<float>(_arenaSize.H),
         75.0f
     );
-
+    Sound& sndJump = _resMgr.GetSound(Constants::Sounds::JUMP);
     Physics physics(100.0f, 0.9f);
 
     GameloopTimer glt(gameFPS, gameUPS, updateTimeMax);
@@ -164,6 +163,22 @@ Game::handleGame(void)
             setGameState(State::PAUSED);
         }
 
+        if (input. IsPressed(Input::KeyCode::m)) {
+            Logger::Info("Music paused");
+            _sdl.GetMixer().PauseMusic();
+        } else if (input.IsPressed(Input::KeyCode::n)) {
+            Logger::Info("Music resumed");
+            _sdl.GetMixer().ResumeMusic();
+        }
+
+        if (input.IsPressed(Input::KeyCode::v)) {
+            renderer.SetVsync(true);
+            Logger::Info("Vsync turned ON. Renderer vsync status: {}", renderer.GetIsVsyncced());
+        } else if (input.IsPressed(Input::KeyCode::c)) {
+            renderer.SetVsync(false);
+            Logger::Info("Vsync turned OFF. Renderer vsync status: {}", renderer.GetIsVsyncced());
+        }
+
         if (input.IsPressed(Input::KeyCode::w)) {
             ball->UpdateRadius(1.1f);
         } else if (input.IsPressed(Input::KeyCode::s)) {
@@ -171,14 +186,10 @@ Game::handleGame(void)
         }
 
         if (input.IsPressed(Input::KeyCode::UP)) {
-            //if (input.IsPressed(Input::KeyCode::RIGHT)) {
-            //    ball->ApplyForce(45.0f, 150.0f);
-            //} else if (input.IsPressed(Input::KeyCode::LEFT)) {
-            //    ball->ApplyForce(315.0f, 150.0f);
-            //}
             ball->ApplyForce(0.0f, 250.0f);
         }
         if (input.IsPressed(Input::KeyCode::SPACE)) {
+            sndJump.Play();
             ball->ApplyForce(Physics::Direction::NORTH, 500.0f);
         }
 

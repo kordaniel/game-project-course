@@ -4,12 +4,14 @@
 #include <SDL.h>
 #include <SDL_ttf.h>
 #include <SDL_image.h>
+#include <SDL_mixer.h>
 #include <string>
 #include <cstdint>
 
 #include "Input.hpp"
 #include "Window.hpp"
 #include "Renderer.hpp"
+#include "Mixer.hpp"
 
 
 /// This class is an abstraction of the C SDL2 library and it provides a C++ interface for it.
@@ -27,9 +29,11 @@ public:
     static bool IsInitialized(void);
     static bool TtfIsInitialized(void);
     static bool ImageIsInitialized(void);
+    static bool MixerIsInitialized(void);
     static void LogVersion(void);
     static void LogTtfVersion(void);
     static void LogImageVersion(void);
+    static void LogMixerVersion(void);
 
     Sdl2(const std::string& windowTitle, int windowWidth, int windowHeight);
     ~Sdl2(void);
@@ -43,16 +47,19 @@ public:
     SDL_Window*     GetSdlWindow(void)   const;
     const Renderer& GetRenderer(void)    const;
     SDL_Renderer*   GetSdlRenderer(void) const;
+    Mixer& GetMixer(void);
 
 private:
     inline static bool s_isInitialized      = false;
     inline static bool s_ttfIsInitialized   = false;
     inline static bool s_imageIsInitialized = false;
+    inline static bool s_mixerIsInitialized = false;
 
     SDL_Event     _event;
     Input         _input;
     Window        _window;
     Renderer      _renderer;
+    Mixer         _mixer;
     EventCallback _quitEventCallback;
 
 };

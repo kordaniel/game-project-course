@@ -14,6 +14,8 @@ namespace Constants
         extern const std::string BASEPATH;
         extern const std::string FONTS;
         extern const std::string IMAGES;
+        extern const std::string MUSICS;
+        extern const std::string SOUNDS;
     } // end namespace Constants::Paths
 
     namespace Fonts::TTF
@@ -36,6 +38,21 @@ namespace Constants
         extern const std::string PIXNIO_BLUE;
         extern const std::string PIXNIO_RED;
     } // end namespace Constants::Images
+
+    namespace Musics
+    {
+        extern const std::string BEATS_A;
+        extern const std::string BEATS_D;
+        extern const std::string EFFECTS_B;
+        extern const std::string GROOVY_BOOTY;
+        extern const std::string LIGHT_MUSIC;
+        extern const std::string SPACESHIP;
+    } // end namespace Constants::Musics
+
+    namespace Sounds
+    {
+        extern const std::string JUMP;
+    } // end namespace Constants::Sounds
 
     namespace Colors
     {
