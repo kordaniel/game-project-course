@@ -6,6 +6,7 @@
 #include "Timetools.hpp"
 #include "Transform.hpp"
 #include "Physics.hpp"
+#include "Input.hpp"
 
 #include <memory>
 
@@ -13,18 +14,70 @@
 class GameObject;
 
 
+class Command
+{
+public:
+    Command(void) = default;
+    Command(const Command& other) = delete;
+    Command(Command&& other)      = delete;
+    virtual ~Command(void) = default;
+    virtual void ExecuteMovement(Transform& transform) const = 0;
+
+private:
+
+};
+
+class NullCommand : public Command
+{
+public:
+    virtual void ExecuteMovement(Transform& transform) const override;
+private:
+
+};
+
+class JumpCommand : public Command
+{
+public:
+    virtual void ExecuteMovement(Transform& transform) const override;
+private:
+};
+
+class MoveCommand : public Command
+{
+public:
+    MoveCommand(Physics::Direction direction);
+    virtual void ExecuteMovement(Transform& transform) const override;
+
+private:
+    Physics::Direction _direction;
+
+};
+
 class InputComponent
 {
 public:
-    InputComponent(void) = default;
-    virtual ~InputComponent(void) = default; // TODO: = delete; // and implement derived class
+    InputComponent(const Input& input, GameObject& parent);
+    ~InputComponent(void) = default;
+    void Handle(void);
+
+    // TODO: Implement methods to bind commands to keys
+
 private:
+    const Input&             _input;
+    GameObject&              _parent;
+    std::unique_ptr<Command> _buttonUp;
+    std::unique_ptr<Command> _buttonDown;
+    std::unique_ptr<Command> _buttonLeft;
+    std::unique_ptr<Command> _buttonRight;
+    std::unique_ptr<Command> _buttonSpace;
+
 };
+
 
 class GraphicsComponent
 {
 public:
-    GraphicsComponent(const GameObject* parent);
+    GraphicsComponent(const GameObject& parent);
     GraphicsComponent(const GraphicsComponent& other) = delete;
     GraphicsComponent(GraphicsComponent&& other)      = delete;
     ~GraphicsComponent(void) = default;
@@ -32,18 +85,18 @@ public:
     void Draw(const Renderer& renderer, Timestep it) const;
 
 private:
-    const GameObject* _parent;
+    const GameObject& _parent;
 
 };
 
+
 class GameObject : public DrawableObject
 {
-    friend void GraphicsComponent::Draw(const Renderer&, Timestep) const;
 public:
-    static std::unique_ptr<GameObject> CreatePlayer(float posX, float posY, float radius);
+    static std::unique_ptr<GameObject> CreatePlayer(Input& input, float posX, float posY, float moveSpeed, float radius);
 
 public:
-    GameObject(float posX, float posY, float radius);
+    GameObject(Input& input, float posX, float posY, float moveSpeed, float radius);
     GameObject(const GameObject& other) = delete;
     GameObject(GameObject&& other)      = delete;
     ~GameObject(void) = default;
@@ -52,10 +105,12 @@ public:
     float GetRadius(void)                 const;
     const glm::vec4& GetPosition(void)    const;
     const glm::vec4& GetVelocity(void)    const;
+    const Transform& GetTransform(void)   const;
 
     void SetRadius(float radius);
     void UpdateRadius(float factor);
 
+    void HandleInput(void);
     /// Update the status of the object.
     /// @param physics Physics engine to use.
     /// @param boundaries 2D rectangle specifying the min/max boundaries for the position one the XY-plane.
@@ -70,7 +125,7 @@ public:
     virtual void Draw(const Renderer& renderer, Timestep it) const override;
 
 private:
-    InputComponent    _input;
+    InputComponent    _inputComponent;
     GraphicsComponent _graphics;
     Transform         _transform;
 

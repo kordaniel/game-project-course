@@ -3,25 +3,39 @@
 
 
 Transform::Transform(void)
-    : Transform(glm::vec3(0.0f))
+    : Transform(glm::vec3(0.0f), 0.0f)
 {
     //
 }
 
-Transform::Transform(float posX, float posY)
-    : Transform(glm::vec3(posX, posY, 0.0f))
+Transform::Transform(float posX, float posY, float moveForce)
+    : Transform(glm::vec3(posX, posY, 0.0f), moveForce)
 {
 
 }
-
+/*
 Transform::Transform(const glm::vec3& position)
-    : Transform(position, glm::vec3(0.0f), glm::vec3(1.0f))
+    : Transform(position, glm::vec3(0.0f), glm::vec3(1.0f), 50.0f)
 {
     //
 }
+*/
 
+Transform::Transform(const glm::vec3& position, float moveForce)
+    : Transform(position, glm::vec3(0.0f), glm::vec3(1.0f), moveForce)
+{
+
+}
+/*
 Transform::Transform(const glm::vec3& position, const glm::vec3& velocity, const glm::vec3& acceleration)
     : PhysicsObject(position, velocity, acceleration)
+{
+    //
+}
+*/
+Transform::Transform(const glm::vec3& position, const glm::vec3& velocity, const glm::vec3& acceleration, float moveForce)
+    : PhysicsObject(position, velocity, acceleration)
+    , _moveForce(moveForce)
 {
     //
 }
@@ -75,4 +89,10 @@ Transform::GetScreenCoords(Timestep it) const
         static_cast<int>(GetPosition().x + static_cast<float>(it) * _velocity.x  + 0.5f),
         static_cast<int>(GetPosition().y + static_cast<float>(it) * _velocity.y  + 0.5f)
     };
+}
+
+float
+Transform::GetMoveForce(void) const
+{
+    return _moveForce;
 }

@@ -20,6 +20,7 @@
  *       - Implement status for keys (pressed/repeat).
  *       - Use Mixer.hpp to handle Sound.hpp object, play & mix on assigned channels.
  *       - Abstract Sound objects ptrs (MIX_Chunk*) to own class and use from Mixer.
+ *       - SDL_AddEventWatch for window fullscreen
  * ************************************************************************** */
 
 bool

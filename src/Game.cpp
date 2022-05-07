@@ -127,7 +127,7 @@ Game::handleMenu(void)
         renderer.RenderPresent(true); // Clears the swapped buffer
     }
 }
-#include "Sound.hpp" // TODO: TEMP TEMP DELETE !!!!!!!!!!!!!!!!
+
 void
 Game::handleGame(void)
 {
@@ -146,11 +146,13 @@ Game::handleGame(void)
     TimeEstimate sleepEst(0.003, 0.003);
 
     std::unique_ptr<GameObject> ball = GameObject::CreatePlayer(
-        0.50f * static_cast<float>(_arenaSize.W),
-        0.25f * static_cast<float>(_arenaSize.H),
-        75.0f
+        _sdl.GetInput(),
+        0.50f * static_cast<float>(_arenaSize.W),   // xPos
+        0.25f * static_cast<float>(_arenaSize.H),   // yPos
+        75.0f,  // standard speed
+        75.0f   // radius
     );
-    Sound& sndJump = _resMgr.GetSound(Constants::Sounds::JUMP);
+    //Sound& sndJump = _resMgr.GetSound(Constants::Sounds::JUMP);
     Physics physics(100.0f, 0.9f);
 
     GameloopTimer glt(gameFPS, gameUPS, updateTimeMax);
@@ -162,6 +164,7 @@ Game::handleGame(void)
         if (input.IsPressed(Input::KeyCode::p) || input.IsPressed(Input::KeyCode::ESCAPE)) {
             setGameState(State::PAUSED);
         }
+        ball->HandleInput();
 
         if (input. IsPressed(Input::KeyCode::m)) {
             Logger::Info("Music paused");
@@ -183,25 +186,6 @@ Game::handleGame(void)
             ball->UpdateRadius(1.1f);
         } else if (input.IsPressed(Input::KeyCode::s)) {
             ball->UpdateRadius(1.0f/1.1f);
-        }
-
-        if (input.IsPressed(Input::KeyCode::UP)) {
-            ball->ApplyForce(0.0f, 250.0f);
-        }
-        if (input.IsPressed(Input::KeyCode::SPACE)) {
-            sndJump.Play();
-            ball->ApplyForce(Physics::Direction::NORTH, 500.0f);
-        }
-
-        if (input.IsPressed(Input::KeyCode::DOWN)) {
-            ball->ApplyForce(Physics::Direction::SOUTH, 50.0f);
-        }
-
-        if (input.IsPressed(Input::KeyCode::LEFT)) {
-            ball->ApplyForce(Physics::Direction::WEST, 150.0f);
-        }
-        if (input.IsPressed(Input::KeyCode::RIGHT)) {
-            ball->ApplyForce(Physics::Direction::EAST, 150.0f);
         }
 
         while (glt.ShouldDoUpdates())
