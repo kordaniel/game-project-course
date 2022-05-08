@@ -1,6 +1,8 @@
 #ifndef LOGGER_HPP
 #define LOGGER_HPP
 
+#include "Timetools.hpp"
+
 #include <string>
 #include <string_view>
 #include <fmt/core.h>
@@ -14,6 +16,21 @@
 #include <glm/mat4x4.hpp>
 #include <glm/gtx/string_cast.hpp>
 
+
+template<>
+struct fmt::formatter<Timestep>
+{
+    constexpr auto parse(format_parse_context& ctx) -> decltype(ctx.begin())
+    {
+        return ctx.begin();
+    }
+
+    template<typename FormatContext>
+    auto format(Timestep ts, FormatContext& ctx) -> decltype(ctx.out())
+    {
+        return fmt::format_to(ctx.out(), "{}", static_cast<double>(ts));
+    }
+};
 
 template<>
 struct fmt::formatter<glm::vec3>
