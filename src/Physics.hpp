@@ -82,6 +82,9 @@ public:
     void ApplyForce(Physics::Direction direction, float force);
     void ApplyForce(float angleDegrees, float force);
 
+    void SetPosition(const glm::vec3& position);
+    void SetVelocity(const glm::vec3& velocity);
+
     const glm::vec4& GetPosition(void)     const;
     const glm::vec4& GetVelocity(void)     const;
     const glm::mat4& GetAcceleration(void) const;

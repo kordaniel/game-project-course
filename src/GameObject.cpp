@@ -118,6 +118,12 @@ GameObject::GetTransform(void) const
 }
 
 void
+GameObject::SetPosition(float xPos, float yPos)
+{
+    _transform.SetPosition(glm::vec3(xPos, yPos, 0.0f));
+}
+
+void
 GameObject::SetRadius(float radius)
 {
     _radius = radius;

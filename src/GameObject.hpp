@@ -107,6 +107,7 @@ public:
     const glm::vec4& GetVelocity(void)    const;
     const Transform& GetTransform(void)   const;
 
+    void SetPosition(float xPos, float yPos);
     void SetRadius(float radius);
     void UpdateRadius(float factor);
 

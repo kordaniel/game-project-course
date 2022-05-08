@@ -30,5 +30,6 @@
 | 2h   | 2022-05-03 | Search for assets, check their licenses and include them in the build |
 | 2h   | 2022-05-03 | Add classes: Mixer, Music and Sound. Play music in menus&game + initial jumping sound |
 | 2h   | 2022-05-07 | Implement InputComponent, handles input for GameObjects |
-| 51h  |            | Total time spent |
+| 2h   | 2022-05-08 | Add GameLevel, refactor game states handling |
+| 53h  |            | Total time spent |
 

@@ -107,6 +107,18 @@ PhysicsObject::ApplyForce(float angleDegrees, float force)
     _acceleration *= translation;
 }
 
+void
+PhysicsObject::SetPosition(const glm::vec3& position)
+{
+    _position = glm::vec4(position, 1.0f);
+}
+
+void
+PhysicsObject::SetVelocity(const glm::vec3& velocity)
+{
+    _velocity = glm::vec4(velocity, 1.0f);
+}
+
 const glm::vec4&
 PhysicsObject::GetPosition(void) const { return _position; }
 

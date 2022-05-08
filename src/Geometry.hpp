@@ -14,6 +14,11 @@ struct Dimensions2D
     bool operator!=(const Dimensions2D& rhs) const;
 };
 
+struct Dimensions2DF
+{
+    float W, H;
+};
+
 struct Rectangle
 {
     int X, Y, W, H;

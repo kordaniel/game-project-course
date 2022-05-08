@@ -134,6 +134,14 @@ GameloopTimer::GameloopTimer(size_t iterationFreq, size_t updateFreq, double upd
 }
 
 void
+GameloopTimer::ResetFields(void)
+{
+    _accumulatedLag = Duration(0.0);
+    _timePrevious = Clock::now();
+    _timeCurrent = Clock::now();
+}
+
+void
 GameloopTimer::InitIteration(void)
 {
     _timeCurrent     = Clock::now();
@@ -224,6 +232,10 @@ TimeEstimate::GetCount(void) const { return _count; }
 void
 thread::PreciseSleep(Timestep seconds, TimeEstimate& estimate)
 {
+    if (seconds.IsNonPositive()) {
+        Logger::Debug("Unable to sleep for a negative period of time");
+        return;
+    }
     using std::chrono::milliseconds;
     using Clock      = std::chrono::steady_clock;
     using Duration   = std::chrono::duration<double>;

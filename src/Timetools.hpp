@@ -81,11 +81,15 @@ public:
     /// with the maximum time to spend updating the game state per loop iteration.
     /// @param iterationFreq Target amount of loop iterations per second, "FPS".
     /// @param updateFreq Target amount of game state updates to do per loop iteration.
-    /// @param updateTimeMax Maximum time to spend updating the game state, per loop iteration.
+    /// @param updateTimeMax The maximum amount of deltatime (lag) to consume per loop iteration.
     GameloopTimer(size_t iterationFreq, size_t updateFreq, double updateTimeMax);
     GameloopTimer(const GameloopTimer& other) = delete;
     GameloopTimer(GameloopTimer&& other)      = delete;
     ~GameloopTimer(void) = default;
+
+    /// This is recommended to be called before the flow of execution enters a gameloop. Calling this
+    /// method clears the accumulated lag and the previous Time_point.
+    void ResetFields(void);
 
     /// Initialize the timer for a new loop iteration, updates the accumulated lag with
     /// the time passed during the previous loop iteration.

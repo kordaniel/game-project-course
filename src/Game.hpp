@@ -4,6 +4,11 @@
 #include "Sdl2.hpp"
 #include "ResourceManager.hpp"
 #include "Geometry.hpp"
+#include "GameObject.hpp"
+#include "GameLevel.hpp"
+#include "Timetools.hpp"
+
+#include <memory>
 
 
 class Game
@@ -20,6 +25,8 @@ private:
     enum class State { QUIT, MENU, RUNNING, PAUSED };
 
     void setGameState(State state);
+    void loadMainMenu(void);
+    void loadLevel(void);
     void handleQuitEvent(void);
     void handleMenu(void);
     void handleGame(void);
@@ -30,7 +37,11 @@ private:
     State            _state;
     Sdl2&            _sdl;
     ResourceManager& _resMgr;
+    GameloopTimer    _glt;
     Point2D          _mousePos;
+
+    std::unique_ptr<GameObject> _player;
+    std::unique_ptr<GameLevel>  _currentLevel;
 
 };
 
