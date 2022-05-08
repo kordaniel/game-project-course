@@ -9,6 +9,7 @@
 #include "Input.hpp"
 
 #include <memory>
+#include <unordered_map>
 
 
 class GameObject;
@@ -65,12 +66,7 @@ public:
 private:
     const Input&             _input;
     GameObject&              _parent;
-    std::unique_ptr<Command> _buttonUp;
-    std::unique_ptr<Command> _buttonDown;
-    std::unique_ptr<Command> _buttonLeft;
-    std::unique_ptr<Command> _buttonRight;
-    std::unique_ptr<Command> _buttonSpace;
-
+    std::unordered_map<Input::KeyCode, std::unique_ptr<Command>> _keymaps;
 };
 
 

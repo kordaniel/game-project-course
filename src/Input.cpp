@@ -28,6 +28,15 @@ Input::HandleEvent(SDL_Event* event)
         case SDL_KEYDOWN:
             setKeyPressed(event, true);
             callCallables(event);
+            if (!_objectCallbacks.expired())
+            {
+                // weak_ptr::lock() returns shared ptr
+                // => increases ref cnt of the shared_ptr
+                // => not thread safe. If the obj the callbacks reference to is destroyed while
+                // this if-stmt is executed, the shared_ptr will live and all the callbacks will
+                // point to garbage.
+                _objectCallbacks.lock()->CallKeyCallback(static_cast<KeyCode>(event->key.keysym.sym));
+            }
             break;
         case SDL_KEYUP:
             setKeyPressed(event, false);
@@ -59,6 +68,12 @@ Input::RegisterKeyCallback(Input::KeyCode key,
             assert(false);
             break;
     }
+}
+
+void
+Input::UseObjectCallbacks(std::shared_ptr<ObjectMappedInputCallbacks> callbacks)
+{
+    _objectCallbacks = callbacks;
 }
 
 bool
@@ -112,5 +127,30 @@ Input::callCallables(SDL_Event* e) const
 
     for (const auto& callable : it->second) {
         callable();
+    }
+}
+
+ObjectMappedInputCallbacks::ObjectMappedInputCallbacks(void)
+{
+    //Logger Ctor called
+}
+
+ObjectMappedInputCallbacks::~ObjectMappedInputCallbacks(void)
+{
+    //Logger Dtor called
+}
+
+void
+ObjectMappedInputCallbacks::AddKeyCallback(Input::KeyCode keyCode, const Callback callback)
+{
+    _callbacks.insert_or_assign(keyCode, callback);
+}
+
+void
+ObjectMappedInputCallbacks::CallKeyCallback(Input::KeyCode keyCode) const
+{
+    auto it = _callbacks.find(keyCode);
+    if (it != _callbacks.end()) {
+        it->second();
     }
 }

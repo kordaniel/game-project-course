@@ -16,8 +16,11 @@ Menu::Menu(const Font& fontTitle, Color colorTitle, const Font& fontLabels,
     , _title(_fontTitle, titleText, _colorTitle, { 0, 0 }, false)
     , _labels()
     , _labelSelected(0)
+    , _callbacks(std::make_shared<ObjectMappedInputCallbacks>())
 {
-    //
+    _callbacks->AddKeyCallback(Input::KeyCode::UP,     std::bind(&Menu::MoveSelection, this, SelectionDirectory::UP));
+    _callbacks->AddKeyCallback(Input::KeyCode::DOWN,   std::bind(&Menu::MoveSelection, this, SelectionDirectory::DOWN));
+    _callbacks->AddKeyCallback(Input::KeyCode::RETURN, std::bind(&Menu::ActivateSelection, this));
 }
 
 void
@@ -92,4 +95,10 @@ Menu::Render(const Renderer& renderer) const
     for (const auto& label : _labels) {
         label.first.Render(renderer, false);
     }
+}
+
+void
+Menu::ActivateCallbacks(Input& input)
+{
+    input.UseObjectCallbacks(_callbacks);
 }

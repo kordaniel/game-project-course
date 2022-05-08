@@ -128,13 +128,20 @@ Game::handleMenu(void)
     Menu* activeMenu = &mainMenu;
 
     mainMenu.AddLabel("New Game", std::bind(&Game::loadLevel, this));
-    mainMenu.AddLabel("Settings", [&activeMenu, &settingsMenu](){ activeMenu = &settingsMenu; });
+    mainMenu.AddLabel("Settings", [&activeMenu, &settingsMenu, &input](){
+        activeMenu = &settingsMenu;
+        settingsMenu.ActivateCallbacks(input);
+    });
     mainMenu.AddLabel("Help (NOT implemented)", [](){ Logger::Debug("Help"); });
     mainMenu.AddLabel("Quit", std::bind(&Game::handleQuitEvent, this));
+    mainMenu.ActivateCallbacks(input);
 
     settingsMenu.AddLabel("Keys (NOT implemented)");
     settingsMenu.AddLabel("Gfxs (NOT implemented)");
-    settingsMenu.AddLabel("Back", [&activeMenu, &mainMenu]() { activeMenu = &mainMenu; });
+    settingsMenu.AddLabel("Back", [&activeMenu, &mainMenu, &input]() {
+        activeMenu = &mainMenu;
+        mainMenu.ActivateCallbacks(input);
+    });
 
     mainMenu.UpdateTextures(renderer);
     settingsMenu.UpdateTextures(renderer);
@@ -143,15 +150,16 @@ Game::handleMenu(void)
     {
         _mousePos = _sdl.PollEvents();
         if (input.IsPressed(Input::KeyCode::DOWN)) {
-            activeMenu->MoveSelection(Menu::SelectionDirectory::DOWN);
+            //activeMenu->MoveSelection(Menu::SelectionDirectory::DOWN);
             activeMenu->UpdateTextures(renderer);
         }
         else if (input.IsPressed(Input::KeyCode::UP)) {
-            activeMenu->MoveSelection(Menu::SelectionDirectory::UP);
+            //activeMenu->MoveSelection(Menu::SelectionDirectory::UP);
             activeMenu->UpdateTextures(renderer);
-        } else if (input.IsPressed(Input::KeyCode::RETURN)) {
-            activeMenu->ActivateSelection();
         }
+        // else if (input.IsPressed(Input::KeyCode::RETURN)) {
+        //    activeMenu->ActivateSelection();
+        //}
 
         activeMenu->Render(renderer);
         renderer.RenderPresent(true); // Clears the swapped buffer

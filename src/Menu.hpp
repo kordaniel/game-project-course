@@ -5,6 +5,7 @@
 #include "Image.hpp"
 #include "Label.hpp"
 #include "Renderer.hpp"
+#include "Input.hpp"
 
 #include <SDL.h>
 
@@ -12,6 +13,7 @@
 #include <utility>
 #include <functional>
 #include <string>
+#include <memory>
 
 
 class Menu
@@ -34,6 +36,8 @@ public:
 
     void Render(const Renderer& renderer) const;
 
+    void ActivateCallbacks(Input& input);
+
 private:
     const Font&                                      _fontTitle;
     const Font&                                      _fontLabels;
@@ -43,6 +47,7 @@ private:
     Label                                            _title;
     std::vector<std::pair<Label, SelectionCallback>> _labels;
     size_t                                           _labelSelected;
+    std::shared_ptr<ObjectMappedInputCallbacks>      _callbacks;
 
 };
 

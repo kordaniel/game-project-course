@@ -9,8 +9,10 @@
 #include <vector>
 #include <functional>
 #include <cstdint>
+#include <memory>
 
 
+class ObjectMappedInputCallbacks;
 
 class Input
 { // TODO: Subclasses that holds the events for key, mouse etc
@@ -94,6 +96,8 @@ public:
 
     void RegisterKeyCallback(Input::KeyCode key, Input::EventType action, const KeyCallback callback);
 
+    void UseObjectCallbacks(std::shared_ptr<ObjectMappedInputCallbacks> callbacks);
+
     bool IsPressed(Input::KeyCode key)        const;
     bool IsPressed(Input::MouseButton button) const;
     Point2D GetMousePos(void) const;
@@ -108,6 +112,25 @@ private:
     std::unordered_map<KeyCode, bool>                     _keyStatus;
     std::unordered_map<KeyCode, std::vector<KeyCallback>> _keyPressCallbacks;
     std::unordered_map<KeyCode, std::vector<KeyCallback>> _keyReleaseCallbacks;
+    std::weak_ptr<ObjectMappedInputCallbacks>             _objectCallbacks;
+
+};
+
+class ObjectMappedInputCallbacks
+{
+public:
+    using Callback = std::function<void(void)>;
+
+    ObjectMappedInputCallbacks(void);
+    ObjectMappedInputCallbacks(const ObjectMappedInputCallbacks& other) = delete;
+    ObjectMappedInputCallbacks(ObjectMappedInputCallbacks&& other)      = delete;
+    ~ObjectMappedInputCallbacks(void);
+
+    void AddKeyCallback(Input::KeyCode, const Callback);
+    void CallKeyCallback(Input::KeyCode keyCode) const;
+
+private:
+    std::unordered_map<Input::KeyCode, Callback> _callbacks;
 
 };
 

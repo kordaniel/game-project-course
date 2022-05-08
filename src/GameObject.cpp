@@ -39,33 +39,24 @@ MoveCommand::ExecuteMovement(Transform& transform) const
 InputComponent::InputComponent(const Input& input, GameObject& parent)
     : _input(input)
     , _parent(parent)
-    , _buttonUp(std::make_unique<MoveCommand>(Physics::Direction::NORTH))
-    , _buttonDown(std::make_unique<MoveCommand>(Physics::Direction::SOUTH))
-    , _buttonLeft(std::make_unique<MoveCommand>(Physics::Direction::WEST))
-    , _buttonRight(std::make_unique<MoveCommand>(Physics::Direction::EAST))
-    , _buttonSpace(std::make_unique<JumpCommand>())
+    , _keymaps()
 {
-    //
+    _keymaps.emplace(Input::KeyCode::UP,    std::make_unique<MoveCommand>(Physics::Direction::NORTH));
+    _keymaps.emplace(Input::KeyCode::DOWN,  std::make_unique<MoveCommand>(Physics::Direction::SOUTH));
+    _keymaps.emplace(Input::KeyCode::LEFT,  std::make_unique<MoveCommand>(Physics::Direction::WEST));
+    _keymaps.emplace(Input::KeyCode::RIGHT, std::make_unique<MoveCommand>(Physics::Direction::EAST));
+    _keymaps.emplace(Input::KeyCode::SPACE, std::make_unique<JumpCommand>());
 }
 
 void
 InputComponent::Handle(void)
 {
     Transform& transform = const_cast<Transform&>(_parent.GetTransform());
-    if (_input.IsPressed(Input::KeyCode::UP))    { _buttonUp.get()   ->ExecuteMovement(transform); }
-    if (_input.IsPressed(Input::KeyCode::DOWN))  { _buttonDown.get() ->ExecuteMovement(transform); }
-    if (_input.IsPressed(Input::KeyCode::LEFT))  { _buttonLeft.get() ->ExecuteMovement(transform); }
-    if (_input.IsPressed(Input::KeyCode::RIGHT)) { _buttonRight.get()->ExecuteMovement(transform); }
-    if (_input.IsPressed(Input::KeyCode::SPACE)) { _buttonSpace.get()->ExecuteMovement(transform); }
-
-    /* Todo, refactor to return functor objects (input class needs to be refactored)
-    if (_input.IsPressed(Input::KeyCode::UP))    { return _buttonUp.get(); }
-    if (_input.IsPressed(Input::KeyCode::DOWN))  { return _buttonDown.get(); }
-    if (_input.IsPressed(Input::KeyCode::LEFT))  { return _buttonLeft.get(); }
-    if (_input.IsPressed(Input::KeyCode::RIGHT)) { return _buttonRight.get(); }
-    if (_input.IsPressed(Input::KeyCode::SPACE)) { return _buttonSpace.get(); }
-    return nullptr;
-    */
+    for (auto const& [keyCode, command] : _keymaps) {
+        if (_input.IsPressed(keyCode)) {
+            command.get()->ExecuteMovement(transform);
+        }
+    }
 }
 
 GraphicsComponent::GraphicsComponent(const GameObject& parent)
@@ -112,10 +103,7 @@ const glm::vec4&
 GameObject::GetVelocity(void) const { return _transform.GetVelocity(); }
 
 const Transform&
-GameObject::GetTransform(void) const
-{
-    return _transform;
-}
+GameObject::GetTransform(void) const { return _transform; }
 
 void
 GameObject::SetPosition(float xPos, float yPos)
@@ -139,8 +127,6 @@ void
 GameObject::HandleInput(void)
 {
     _inputComponent.Handle();
-    // TODO: Refactor commands to return functions
-    //Command* command = _inputComponent.Handle(); => if (command) command(args...);
 }
 
 void

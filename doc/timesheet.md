@@ -31,5 +31,6 @@
 | 2h   | 2022-05-03 | Add classes: Mixer, Music and Sound. Play music in menus&game + initial jumping sound |
 | 2h   | 2022-05-07 | Implement InputComponent, handles input for GameObjects |
 | 2h   | 2022-05-08 | Add GameLevel, refactor game states handling |
-| 53h  |            | Total time spent |
+| 2h   | 2022-05-08 | Refactor GameObject InputComponent, uses proper Command pattern, Add mapping for objectkeycallback to input class |
+| 55h  |            | Total time spent |
 
