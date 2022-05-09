@@ -2,6 +2,7 @@
 #include "Logger.hpp"
 #include "Menu.hpp"
 #include "Constants.hpp"
+#include "Mixer.hpp"
 
 #include <functional>
 #include <cassert>
@@ -13,15 +14,25 @@ Game::Game(Sdl2& sdl, ResourceManager& resourceManager, int width, int height)
     , _sdl(sdl)
     , _resMgr(resourceManager)
     , _glt(60, 120, 0.2) // FPS, UPS, Max amount of deltatime to consume per loop iteration
+    , _callbacks(std::make_shared<ObjectMappedInputCallbacks>())
     , _player(nullptr)
     , _currentLevel(nullptr)
 {
-    sdl.RegisterQuitEventCallback(std::bind(&Game::handleQuitEvent, this));
-    sdl.GetInput().RegisterKeyCallback(
+    _sdl.RegisterQuitEventCallback(std::bind(&Game::handleQuitEvent, this));
+
+    _sdl.GetInput().RegisterKeyCallback(
         Input::KeyCode::f,
         Input::EventType::KEYDOWN,
         std::bind(&Window::ToggleFullscreen, &sdl.GetWindow())
     );
+    _sdl.GetInput().RegisterKeyCallback(
+        Input::KeyCode::m,
+        Input::EventType::KEYDOWN,
+        std::bind(&Mixer::ToggleMusicPaused, &_sdl.GetMixer())
+    );
+
+    _callbacks->AddKeyCallback(Input::KeyCode::p,      std::bind(&Game::setGameState, this, State::PAUSED));
+    _callbacks->AddKeyCallback(Input::KeyCode::ESCAPE, std::bind(&Game::setGameState, this, State::PAUSED));
 
     loadMainMenu();
 }
@@ -88,7 +99,7 @@ Game::loadLevel(void)
         75.0f, // xPos
         75.0f, // yPos
         75.0f, // standard speed
-        75.0f  // radius
+        50.0f  // radius
     );
     _currentLevel = GameLevel::CreateLevel(_sdl, _arenaSize, gravity, friction, _player.get());
 
@@ -172,6 +183,7 @@ Game::handleGame(void)
     assert(_state == State::RUNNING);
 
     Input& input = _sdl.GetInput();
+    input.UseObjectCallbacks(_callbacks);
 
     static TimeEstimate sleepEst(0.003, 0.003);
     //Sound& sndJump = _resMgr.GetSound(Constants::Sounds::JUMP);
@@ -179,21 +191,12 @@ Game::handleGame(void)
     _glt.ResetFields();
     while (_state == State::RUNNING)
     {
+        IF_LOG_INIT();
+
         _glt.InitIteration();
         _mousePos = _sdl.PollEvents();
-        if (input.IsPressed(Input::KeyCode::p) || input.IsPressed(Input::KeyCode::ESCAPE)) {
-            setGameState(State::PAUSED);
-        }
 
-        _currentLevel->HandleInput();
-
-        if (input. IsPressed(Input::KeyCode::m)) {
-            Logger::Info("Music paused");
-            _sdl.GetMixer().PauseMusic();
-        } else if (input.IsPressed(Input::KeyCode::n)) {
-            Logger::Info("Music resumed");
-            _sdl.GetMixer().ResumeMusic();
-        }
+        IF_LOG_TIME(_currentLevel->HandleInput(), "Input handling");
 
         if (input.IsPressed(Input::KeyCode::v)) {
             _sdl.GetRenderer().SetVsync(true);
@@ -210,17 +213,19 @@ Game::handleGame(void)
         //}
 
         while (_glt.ShouldDoUpdates()) {
-            _currentLevel->Update(_glt.GetUpdateDeltaTime());
+            IF_LOG_TIME(_currentLevel->Update(_glt.GetUpdateDeltaTime()), "Physic updates");
         }
 
-        _currentLevel->Draw(_sdl.GetRenderer(), _glt.GetLag());
+        IF_LOG_TIME(_currentLevel->Draw(_sdl.GetRenderer(), _glt.GetLag()), "Draw to target");
 
-        _sdl.GetRenderer().SetRenderDrawColor({ Constants::Colors::LIGHT });
-        _sdl.GetRenderer().RenderPresent(true); // arg == true => clears the swapped buffer
+        IF_LOG_TIME(
+            _sdl.GetRenderer().SetRenderDrawColor({ Constants::Colors::LIGHT });
+            _sdl.GetRenderer().RenderPresent(true), "Rendering trgt"
+        );
 
-        thread::PreciseSleep(_glt.GetSleeptime(), sleepEst);
+        IF_LOG_TIME(thread::PreciseSleep(_glt.GetSleeptime(), sleepEst), "Slept for");
+        IF_LOG_TOTAL();
     }
-
 }
 
 void
