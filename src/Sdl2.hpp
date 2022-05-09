@@ -12,7 +12,8 @@
 #include "Window.hpp"
 #include "Renderer.hpp"
 #include "Mixer.hpp"
-
+#include "Geometry.hpp"
+#include "ResourceManager.hpp"
 
 /// This class is an abstraction of the C SDL2 library and it provides a C++ interface for it.
 /// NOTE: The static function Sdl2::Initialize() must be called before creating any objects of
@@ -35,7 +36,8 @@ public:
     static void LogImageVersion(void);
     static void LogMixerVersion(void);
 
-    Sdl2(const std::string& windowTitle, int windowWidth, int windowHeight);
+public:
+    Sdl2(const std::string& windowTitle, Dimensions2D windowSize, ResourceManager& resourceManager);
     ~Sdl2(void);
 
     void RegisterQuitEventCallback(const EventCallback quitCallback);
@@ -47,7 +49,7 @@ public:
     SDL_Window*     GetSdlWindow(void)   const;
     const Renderer& GetRenderer(void)    const;
     SDL_Renderer*   GetSdlRenderer(void) const;
-    Mixer& GetMixer(void);
+    Mixer&          GetMixer(void);
 
 private:
     inline static bool s_isInitialized      = false;

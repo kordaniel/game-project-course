@@ -231,7 +231,7 @@ Sdl2::LogImageVersion(void)
 
 void
 Sdl2::LogMixerVersion(void)
-{
+{ // Static function
     SDL_version compiled;
     const SDL_version* linked = Mix_Linked_Version();
     SDL_MIXER_VERSION(&compiled);
@@ -239,12 +239,11 @@ Sdl2::LogMixerVersion(void)
     Logger::Debug("Linked against SDL_Mixer version:  {}.{}.{}", linked->major, linked->minor, linked->patch);
 }
 
-// TODO: Refactor to use Dimensions2D for the width & height
-Sdl2::Sdl2(const std::string& windowTitle, int windowWidth, int windowHeight)
+Sdl2::Sdl2(const std::string& windowTitle, Dimensions2D windowSize, ResourceManager& ResourceManager)
     : _input()
-    , _window(windowTitle, windowWidth, windowHeight)
+    , _window(windowTitle, windowSize.W, windowSize.H)
     , _renderer(GetSdlWindow())
-    , _mixer()
+    , _mixer(ResourceManager)
     , _quitEventCallback(nullptr)
 {
     assert(IsInitialized()); // Sdl2::Initialize();

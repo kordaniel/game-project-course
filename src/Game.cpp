@@ -66,7 +66,7 @@ Game::setGameState(State state)
 void
 Game::loadMainMenu(void)
 {
-    _sdl.GetMixer().SetMusic(_resMgr.GetMusic(Constants::Musics::GROOVY_BOOTY));
+    _sdl.GetMixer().SetMusic(Constants::Musics::GROOVY_BOOTY);
     _sdl.GetMixer().SetMusicVolume(1.0);
     _sdl.GetMixer().PlayMusicFadeIn(2000);
 
@@ -76,7 +76,7 @@ Game::loadMainMenu(void)
 void
 Game::loadLevel(void)
 {
-    _sdl.GetMixer().SetMusic(_resMgr.GetMusic(Constants::Musics::BEATS_D));
+    _sdl.GetMixer().SetMusic(Constants::Musics::BEATS_D);
     _sdl.GetMixer().SetMusicVolume(0.5);
     _sdl.GetMixer().PlayMusicFadeIn(2000);
 

@@ -2,10 +2,11 @@
 #include "Logger.hpp"
 
 
-Mixer::Mixer(void)
+Mixer::Mixer(ResourceManager& resourceManager)
     : _musicMuted(false)
     , _soundsMuted(false)
     , _music(nullptr)
+    , _resMgr(resourceManager)
 {
     Logger::Debug("Mixer loaded succesfully");
     const int musicDecodersN = Mix_GetNumMusicDecoders();
@@ -18,18 +19,10 @@ Mixer::Mixer(void)
     }
 }
 
-Mixer::Mixer(Music& music)
-    : _musicMuted(false)
-    , _soundsMuted(false)
-    , _music(&music)
-{
-    //
-}
-
 void
-Mixer::SetMusic(Music& music)
+Mixer::SetMusic(const std::string& musicFilepath)
 {
-    _music = &music;
+    _music = &(_resMgr.GetMusic(musicFilepath));
 }
 
 void

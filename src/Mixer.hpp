@@ -3,6 +3,7 @@
 
 #include "Sound.hpp"
 #include "Music.hpp"
+#include "ResourceManager.hpp"
 
 #include <SDL_mixer.h>
 
@@ -10,13 +11,12 @@
 class Mixer
 {
 public:
-    Mixer(void);
-    Mixer(Music& music);
+    Mixer(ResourceManager& resourceManager);
     Mixer(const Mixer& other) = delete;
     Mixer(Mixer&& other)      = delete;
     ~Mixer(void) = default;
 
-    void SetMusic(Music& music);
+    void SetMusic(const std::string& musicFilepath);
 
     /// Plays the current loaded music.
     /// @param loopTimes How many times to play the music. Defaults to -1 which plays forever.
@@ -52,9 +52,10 @@ public:
     bool GetMusicIsFading(void)  const;
 
 private:
-    bool   _musicMuted;
-    bool   _soundsMuted;
-    Music* _music;
+    bool             _musicMuted;
+    bool             _soundsMuted;
+    Music*           _music;
+    ResourceManager& _resMgr;
 
 };
 

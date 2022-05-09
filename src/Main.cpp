@@ -64,7 +64,7 @@ main(int argc, char* argv[])
     }
 
     ResourceManager resourceManager;
-    Sdl2 sdl2Subsystem(SCREEN_TITLE, SCREEN_WIDTH, SCREEN_HEIGHT);
+    Sdl2 sdl2Subsystem(SCREEN_TITLE, { SCREEN_WIDTH, SCREEN_HEIGHT }, resourceManager);
     Game game(sdl2Subsystem, resourceManager);
 
     game.Run();
