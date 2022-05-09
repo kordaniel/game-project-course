@@ -44,6 +44,21 @@ Mixer::PlayMusicFadeIn(int ms, int loopTimes) const
 }
 
 void
+Mixer::ToggleMusicPaused(void) const
+{
+    if (!GetMusicIsPlaying()) {
+        // No music playing, do nothing
+        return;
+    }
+    // Music is playing, but might be paused
+    if (GetMusicIsPaused()) {
+        ResumeMusic();
+    } else {
+        PauseMusic();
+    }
+}
+
+void
 Mixer::PauseMusic(void) const
 {
     if (GetMusicIsPlaying()) {

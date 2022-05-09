@@ -26,6 +26,7 @@ public:
     /// @param loopTimes How many times to play the music, a value of -1 plays forever.
     /// @param ms The time in milliseconds to fade in.
     void PlayMusicFadeIn(int ms, int loopTimes = -1) const;
+    void ToggleMusicPaused(void) const;
     void PauseMusic(void) const;
     void ResumeMusic(void) const;
 
