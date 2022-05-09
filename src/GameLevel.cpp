@@ -6,14 +6,14 @@
 
 std::unique_ptr<GameLevel>
 GameLevel::CreateLevel(Sdl2& sdl2, Dimensions2D arenaSize,
-                       float gravity, float friction, GameObject* player)
+                       float gravity, float friction, PlayerObject* player)
 { // Static function
     return std::make_unique<GameLevel>(sdl2, arenaSize, gravity, friction, player);
 }
 
 GameLevel::GameLevel(Sdl2& sdl2,
                      Dimensions2D arenaSize,
-                     float gravity, float friction, GameObject* player)
+                     float gravity, float friction, PlayerObject* player)
     : _sdl2(sdl2)
     , _arenaSize(arenaSize)
     , _physics(gravity, friction)

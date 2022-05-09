@@ -16,13 +16,13 @@ class GameLevel
 public:
     static std::unique_ptr<GameLevel> CreateLevel(Sdl2& sdl2, Dimensions2D arenaSize,
                                                   float gravity, float friction,
-                                                  GameObject* player);
+                                                  PlayerObject* player);
 
 public:
     GameLevel(Sdl2& sdl2,
               Dimensions2D arenaSize,
               float gravity, float friction,
-              GameObject* player);
+              PlayerObject* player);
     GameLevel(const GameLevel& other) = delete;
     GameLevel(GameLevel&& other)      = delete;
     ~GameLevel(void) = default;
@@ -34,11 +34,11 @@ public:
     void Draw(const Renderer& renderer, Timestep it) const;
 
 private:
-    Sdl2&            _sdl2;
-    Dimensions2D     _arenaSize;
-    Physics          _physics;
+    Sdl2&        _sdl2;
+    Dimensions2D _arenaSize;
+    Physics      _physics;
 
-    GameObject*      _player;
+    PlayerObject* _player;
     // entitiesList
 };
 

@@ -36,6 +36,7 @@ MoveCommand::ExecuteMovement(Transform& transform) const
     transform.ApplyForce(_direction, force);
 }
 
+
 InputComponent::InputComponent(const Input& input, GameObject& parent)
     : _input(input)
     , _parent(parent)
@@ -59,42 +60,49 @@ InputComponent::Handle(void)
     }
 }
 
-GraphicsComponent::GraphicsComponent(const GameObject& parent)
-    : _parent(parent)
+
+void
+GraphicsComponent::SetParent(const GameObject* parent)
 {
-    //
+    assert(parent != nullptr);
+    _parent = parent;
 }
 
 void
 GraphicsComponent::Draw(const Renderer& renderer, Timestep it) const
 {
-    renderer.SetRenderDrawColor({ Constants::Colors::RED });
-    renderer.DrawCircleFilled(
-         _parent.GetTransform().GetScreenCoords(it),
-         static_cast<int>(_parent.GetRadius() + 0.5f)
-    );
+    assert(_parent != nullptr);
+
+    if (const PlayerObject* ptr = dynamic_cast<const PlayerObject*>(_parent))
+    {
+        renderer.SetRenderDrawColor({ Constants::Colors::RED });
+        renderer.DrawCircleFilled(
+             ptr->GetTransform().GetScreenCoords(it),
+             static_cast<int>(ptr->GetRadius() + 0.5f)
+        );
+    } else {
+        Logger::Debug("Dynamic casting of GraphicsComponent owner failed");
+        assert(false);
+    }
 }
 
-std::unique_ptr<GameObject>
+
+std::unique_ptr<PlayerObject>
 GameObject::CreatePlayer(Input& input, float posX, float posY, float moveSpeed, float radius)
-{ // static function
-    return std::make_unique<GameObject>(input, posX, posY, moveSpeed, radius);
+{ // Static function
+    return std::make_unique<PlayerObject>(input, posX, posY, moveSpeed, radius);
 }
 
-GameObject::GameObject(Input& input, float posX, float posY, float moveSpeed, float radius)
+GameObject::GameObject(Input& input, float posX, float posY, float moveSpeed)
     : _inputComponent(input, *this)
-    , _graphics(*this)
+    , _graphicsComponent()
     , _transform(posX, posY, moveSpeed)
-    , _radius(radius)
 {
     //
 }
 
 bool
 GameObject::IsAlive(void) const { return true; }
-
-float
-GameObject::GetRadius(void) const { return _radius; }
 
 const glm::vec4&
 GameObject::GetPosition(void) const { return _transform.GetPosition(); }
@@ -112,36 +120,9 @@ GameObject::SetPosition(float xPos, float yPos)
 }
 
 void
-GameObject::SetRadius(float radius)
-{
-    _radius = radius;
-}
-
-void
-GameObject::UpdateRadius(float factor)
-{
-    _radius *= factor;
-}
-
-void
 GameObject::HandleInput(void)
 {
     _inputComponent.Handle();
-}
-
-void
-GameObject::Update(const Physics& physics, Dimensions2D boundaries, Timestep dt)
-{
-    _transform.UpdatePhysics(
-        physics,
-        {
-            _radius,
-            _radius,
-            static_cast<float>(boundaries.W) - _radius,
-            static_cast<float>(boundaries.H) - _radius
-        },
-        dt
-    );
 }
 
 void
@@ -159,5 +140,43 @@ GameObject::ApplyForce(float angleDegrees, float force)
 void
 GameObject::Draw(const Renderer& renderer, Timestep it) const
 { // virtual override member from DrawableObject
-    _graphics.Draw(renderer, it);
+    _graphicsComponent.Draw(renderer, it);
+}
+
+
+PlayerObject::PlayerObject(Input& input, float posX, float posY, float moveSpeed, float radius)
+    : GameObject(input, posX, posY, moveSpeed)
+    , _radius(radius)
+{
+    _graphicsComponent.SetParent(this);
+}
+
+float
+PlayerObject::GetRadius(void) const { return _radius; }
+
+void
+PlayerObject::SetRadius(float radius)
+{
+    _radius = radius;
+}
+
+void
+PlayerObject::UpdateRadius(float factor)
+{
+    _radius *= factor;
+}
+
+void
+PlayerObject::Update(const Physics& physics, Dimensions2D boundaries, Timestep dt)
+{
+    _transform.UpdatePhysics(
+        physics,
+        {
+            _radius,
+            _radius,
+            static_cast<float>(boundaries.W) - _radius,
+            static_cast<float>(boundaries.H) - _radius
+        },
+        dt
+    );
 }

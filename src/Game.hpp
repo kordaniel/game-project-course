@@ -64,8 +64,8 @@ private:
     Point2D          _mousePos;
     std::shared_ptr<ObjectMappedInputCallbacks> _callbacks;
 
-    std::unique_ptr<GameObject> _player;
-    std::unique_ptr<GameLevel>  _currentLevel;
+    std::unique_ptr<PlayerObject> _player;
+    std::unique_ptr<GameLevel>    _currentLevel;
 
 };
 

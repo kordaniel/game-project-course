@@ -13,6 +13,7 @@
 
 
 class GameObject;
+class PlayerObject;
 
 
 class Command
@@ -73,46 +74,47 @@ private:
 class GraphicsComponent
 {
 public:
-    GraphicsComponent(const GameObject& parent);
+    GraphicsComponent(void) = default;
     GraphicsComponent(const GraphicsComponent& other) = delete;
     GraphicsComponent(GraphicsComponent&& other)      = delete;
     ~GraphicsComponent(void) = default;
 
+    void SetParent(const GameObject* parent);
     void Draw(const Renderer& renderer, Timestep it) const;
 
 private:
-    const GameObject& _parent;
+    const GameObject* _parent;
 
 };
 
 
+/// Base class for all entities in the game.
 class GameObject : public DrawableObject
 {
 public:
-    static std::unique_ptr<GameObject> CreatePlayer(Input& input, float posX, float posY, float moveSpeed, float radius);
+    static std::unique_ptr<PlayerObject> CreatePlayer(Input& input, float posX, float posY, float moveSpeed, float radius);
 
 public:
-    GameObject(Input& input, float posX, float posY, float moveSpeed, float radius);
+    GameObject(Input& input, float posX, float posY, float moveSpeed);
     GameObject(const GameObject& other) = delete;
     GameObject(GameObject&& other)      = delete;
-    ~GameObject(void) = default;
+    virtual ~GameObject(void) = default;
 
-    bool  IsAlive(void)                   const;
-    float GetRadius(void)                 const;
-    const glm::vec4& GetPosition(void)    const;
-    const glm::vec4& GetVelocity(void)    const;
-    const Transform& GetTransform(void)   const;
+    bool  IsAlive(void)                 const;
+    const glm::vec4& GetPosition(void)  const;
+    const glm::vec4& GetVelocity(void)  const;
+    const Transform& GetTransform(void) const;
 
     void SetPosition(float xPos, float yPos);
-    void SetRadius(float radius);
-    void UpdateRadius(float factor);
 
     void HandleInput(void);
+
     /// Update the status of the object.
     /// @param physics Physics engine to use.
     /// @param boundaries 2D rectangle specifying the min/max boundaries for the position one the XY-plane.
     /// @param dt The deltatime length for the update.
-    void Update(const Physics& physics, Dimensions2D boundaries, Timestep dt);
+    virtual void Update(const Physics& physics, Dimensions2D boundaries, Timestep dt) = 0;
+
     void ApplyForce(Physics::Direction direction, float force);
     void ApplyForce(float angleDegrees, float force);
 
@@ -121,12 +123,30 @@ public:
     /// @param it Interpolation timestep for correcting position between updates.
     virtual void Draw(const Renderer& renderer, Timestep it) const override;
 
-private:
+protected:
     InputComponent    _inputComponent;
-    GraphicsComponent _graphics;
+    GraphicsComponent _graphicsComponent;
     Transform         _transform;
 
-    float             _radius;
+};
+
+
+class PlayerObject : public GameObject
+{
+public:
+    PlayerObject(Input& input, float posX, float posY, float moveSpeed, float radius);
+    PlayerObject(const PlayerObject& other) = delete;
+    PlayerObject(PlayerObject&& other) = delete;
+    ~PlayerObject(void) = default;
+
+    float GetRadius(void) const;
+    void  SetRadius(float radius);
+    void  UpdateRadius(float factor);
+
+    virtual void Update(const Physics& physics, Dimensions2D boundaries, Timestep dt) override;
+
+private:
+    float _radius;
 
 };
 

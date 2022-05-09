@@ -33,5 +33,6 @@
 | 2h   | 2022-05-08 | Add GameLevel, refactor game states handling |
 | 2h   | 2022-05-08 | Refactor GameObject InputComponent, uses proper Command pattern, Add mapping for objectkeycallback to input class |
 | 1h   | 2022-05-09 | Study c++ macros & use macros to conditionally inclue profiling code in main game loop, refactor callbacks |
-| 56h  |            | Total time spent |
+| 1h   | 2022-05-09 | Refactor GameObject to be a base class. Add PlayerObject extending it to represent player |
+| 57h  |            | Total time spent |
 
