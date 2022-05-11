@@ -174,7 +174,7 @@ PlayerObject::Update(const Physics& physics, Dimensions2D boundaries, Timestep d
         {
             _radius,
             _radius,
-            static_cast<float>(boundaries.W) - _radius,
+            100.0f * static_cast<float>(boundaries.W) - _radius,
             static_cast<float>(boundaries.H) - _radius
         },
         dt

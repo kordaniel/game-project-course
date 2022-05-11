@@ -13,6 +13,7 @@ namespace Constants
     {
         extern const std::string BASEPATH;
         extern const std::string FONTS;
+        extern const std::string TILESETS;
         extern const std::string IMAGES;
         extern const std::string MUSICS;
         extern const std::string SOUNDS;
@@ -27,6 +28,18 @@ namespace Constants
         extern const std::string PERMANENTMARKER;
         extern const std::string RUBIKBUBBLES;
     } // end namespace Constants::Fonts::TTF
+
+    namespace Tilesets
+    {
+        namespace FPT // Free platformer Game Tileset
+        {
+            // Source: https://www.gameart2d.com/free-platformer-game-tileset.html
+            // License: https://creativecommons.org/publicdomain/zero/1.0/ (Public domain)
+            extern const std::string FPT_PATH;
+            extern const std::string BG;
+        } // end namespace Constants::Tilesets::FPT
+
+    } // end namespace Constants::Tilesets
 
     namespace Images
     {

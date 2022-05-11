@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.16)
 
 set(headers
+    "Background.hpp"
+#    "Camera.hpp"
     "Color.hpp"
     "Constants.hpp"
     "Font.hpp"
@@ -13,12 +15,14 @@ set(headers
     "Input.hpp"
     "Label.hpp"
     "Logger.hpp"
+#    "LRUCache.hpp"
     "Menu.hpp"
     "Mixer.hpp"
     "Music.hpp"
     "Physics.hpp"
     "Renderer.hpp"
     "ResourceManager.hpp"
+#    "RingBuffer.hpp"
     "Sdl2.hpp"
     "Sound.hpp"
     "Texture.hpp"
@@ -28,6 +32,8 @@ set(headers
 )
 
 set(sources
+    "Background.cpp"
+#    "Camera.cpp"
     "Color.cpp"
     "Constants.cpp"
     "Font.cpp"
@@ -40,6 +46,7 @@ set(sources
     "Input.cpp"
     "Label.cpp"
     "Logger.cpp"
+#    "LRUCache.cpp"
     "Main.cpp"
     "Menu.cpp"
     "Mixer.cpp"
@@ -47,6 +54,7 @@ set(sources
     "Physics.cpp"
     "Renderer.cpp"
     "ResourceManager.cpp"
+#    "RingBuffer.cpp"
     "Sdl2.cpp"
     "Sound.cpp"
     "Texture.cpp"
@@ -89,21 +97,28 @@ target_link_libraries("${EXECNAME}" PRIVATE
 
 add_custom_command(
     TARGET "${EXECNAME}" POST_BUILD
-# Fonts
+
+    # Fonts
     COMMAND "${CMAKE_COMMAND}" -E copy "${CMAKE_SOURCE_DIR}/res/fonts/indie-flower/IndieFlower-Regular.ttf" $<TARGET_FILE_DIR:${EXECNAME}>/res/fonts/indieflower.ttf
     COMMAND "${CMAKE_COMMAND}" -E copy "${CMAKE_SOURCE_DIR}/res/fonts/patrick-hand/PatrickHand-Regular.ttf" $<TARGET_FILE_DIR:${EXECNAME}>/res/fonts/patrickhand.ttf
     COMMAND "${CMAKE_COMMAND}" -E copy "${CMAKE_SOURCE_DIR}/res/fonts/permanent-marker/PermanentMarker-Regular.ttf" $<TARGET_FILE_DIR:${EXECNAME}>/res/fonts/permanentmarker.ttf
     COMMAND "${CMAKE_COMMAND}" -E copy "${CMAKE_SOURCE_DIR}/res/fonts/rubik-bubbles/RubikBubbles-Regular.ttf" $<TARGET_FILE_DIR:${EXECNAME}>/res/fonts/rubikbubbles.ttf
-# Images
+
+    # Images
     COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_SOURCE_DIR}/res/images" $<TARGET_FILE_DIR:${EXECNAME}>/res/images
-# Music
+
+    # Tilesets
+    COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_SOURCE_DIR}/res/tilesets" $<TARGET_FILE_DIR:${EXECNAME}>/res/tilesets
+
+    # Music
     COMMAND "${CMAKE_COMMAND}" -E copy "${CMAKE_SOURCE_DIR}/res/music/ogg-short-loopable-background-music/Beats_A.ogg" $<TARGET_FILE_DIR:${EXECNAME}>/res/musics/beats_a.ogg
     COMMAND "${CMAKE_COMMAND}" -E copy "${CMAKE_SOURCE_DIR}/res/music/ogg-short-loopable-background-music/Beats_D.ogg" $<TARGET_FILE_DIR:${EXECNAME}>/res/musics/beats_d.ogg
     COMMAND "${CMAKE_COMMAND}" -E copy "${CMAKE_SOURCE_DIR}/res/music/ogg-short-loopable-background-music/Effects_B.ogg" $<TARGET_FILE_DIR:${EXECNAME}>/res/musics/effects_b.ogg
     COMMAND "${CMAKE_COMMAND}" -E copy "${CMAKE_SOURCE_DIR}/res/music/ogg-short-loopable-background-music/Groovy_booty.ogg" $<TARGET_FILE_DIR:${EXECNAME}>/res/musics/groovy_booty.ogg
     COMMAND "${CMAKE_COMMAND}" -E copy "${CMAKE_SOURCE_DIR}/res/music/ogg-short-loopable-background-music/Light_Music.ogg" $<TARGET_FILE_DIR:${EXECNAME}>/res/musics/light_music.ogg
     COMMAND "${CMAKE_COMMAND}" -E copy "${CMAKE_SOURCE_DIR}/res/music/ogg-short-loopable-background-music/Spaceship.ogg" $<TARGET_FILE_DIR:${EXECNAME}>/res/musics/spaceship.ogg
-# Sounds
+
+    # Sounds
     COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_SOURCE_DIR}/res/sounds" $<TARGET_FILE_DIR:${EXECNAME}>/res/sounds
 
     COMMENT "Copied all resources to the directory res/ in relation to the executable"

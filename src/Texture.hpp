@@ -28,6 +28,9 @@ public:
                        Uint32 format = SDL_PIXELFORMAT_RGBA8888,
                        int access = SDL_TEXTUREACCESS_TARGET);
 
+    /// Creates a horizontally tiled (2 times) texture from the surface.
+    void CreaateTextureTiled(const Renderer& renderer, Dimensions2D size, SDL_Surface* surface);
+
     /// Modulates each of the color values of the texture according to the formula
     /// srcC = srcC * (color / 255) when it is rendered.
     void SetColorModulation(Color color) const;
@@ -37,15 +40,17 @@ public:
     void SetAlphaModulation(uint8_t alpha) const;
     void SetBlendMode(Renderer::BlendMode blendMode) const;
 
-    const SDL_Texture* GetTexture(void) const;
+    SDL_Texture*       GetTexture(void) const;
     Dimensions2D       GetSize(void)    const;
 
     /// Copies the texture to the renderer target.
     /// NOTE: If stretchToRenderingTarget is passed the argument false then you also must
     ///       pass a pointer to dstrect.
     /// @param stretchToRenderingTarget true = stretch the texture to fill the whole rendering target.
-    /// @param dstrect The coords of the destination rectangle to copy the texture to.
-    void Render(const Renderer& renderer, bool stretchToRenderingTarget = false,
+    /// @param srcrect The area of the texture to use. nullptr = use the whole texture.
+    /// @param dstrect The area of the destination rectangle to copy the texture to. Use default arg dstrect = nullptr to fill the whole target.
+    void Render(const Renderer& renderer,
+                const SDL_Rect* srcrect = nullptr,
                 const SDL_Rect* dstrect = nullptr) const;
 
 private:

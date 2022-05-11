@@ -40,8 +40,8 @@ void
 Image::Render(const Renderer& renderer, bool scaleToDstRect) const
 {
     if (scaleToDstRect) {
-        _imageTexture.Render(renderer, true, nullptr);
+        _imageTexture.Render(renderer, nullptr, nullptr);
     } else {
-        _imageTexture.Render(renderer, false, &_imageRect);
+        _imageTexture.Render(renderer, nullptr, &_imageRect);
     }
 }

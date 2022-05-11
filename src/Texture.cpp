@@ -50,6 +50,30 @@ Texture::CreateTexture(const Renderer& renderer, Dimensions2D size, Uint32 forma
 }
 
 void
+Texture::CreaateTextureTiled(const Renderer& renderer, Dimensions2D size, SDL_Surface* surface)
+{
+    // TODO: Refactor api to take args for repeat count in both x/y directions
+    //       Implement this, use surface size instead of argument size.
+    //       return size of created texture(?)
+    CreateTexture(renderer, size);
+    renderer.SetRenderTarget(GetTexture());
+    SDL_Texture* surfTex = SDL_CreateTextureFromSurface(renderer.GetSdlRenderer(), surface);
+    if (surfTex == nullptr) {
+        Logger::Critical("Unable to create tiled texture{}: ", SDL_GetError());
+        destroyTexture();
+        return;
+    }
+    SDL_Rect surfRect = { 0, 0, surface->w, surface->h };
+    renderer.RenderCopy(surfTex, nullptr, &surfRect);
+    surfRect.x = surfRect.w;
+    renderer.RenderCopy(surfTex, nullptr, &surfRect);
+    renderer.RenderPresent(false);
+    renderer.SetRenderTarget(nullptr);
+    SDL_DestroyTexture(surfTex);
+    surfTex = nullptr;
+}
+
+void
 Texture::SetColorModulation(Color color) const
 {
     if (SDL_SetTextureColorMod(_texture, color.r, color.g, color.b) != 0) {
@@ -73,7 +97,7 @@ Texture::SetBlendMode(Renderer::BlendMode blendMode) const
     }
 }
 
-const SDL_Texture*
+SDL_Texture*
 Texture::GetTexture(void) const
 {
     return _texture;
@@ -91,15 +115,10 @@ Texture::GetSize(void) const
 }
 
 void
-Texture::Render(const Renderer& renderer, bool stretchToRenderingTarget, const SDL_Rect* dstrect) const
+Texture::Render(const Renderer& renderer, const SDL_Rect* srcrect, const SDL_Rect* dstrect) const
 {
     assert(_texture != nullptr); // Need to call CreateTexture before rendering
-
-    if (stretchToRenderingTarget) {
-        renderer.RenderCopy(_texture, nullptr, nullptr);
-    } else {
-        renderer.RenderCopy(_texture, nullptr, dstrect);
-    }
+    renderer.RenderCopy(_texture, srcrect, dstrect);
 }
 
 // Private functions

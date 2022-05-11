@@ -138,9 +138,9 @@ Label::Render(const Renderer& renderer, bool ScaleToDstRect) const
 {
     const SDL_Rect& activeRectangle = _textRectangles.at(getSurfaceIndex(_activeSurface));
     if (ScaleToDstRect) {
-        _textTexture.Render(renderer, true, nullptr);
+        _textTexture.Render(renderer, nullptr, nullptr);
     } else {
-        _textTexture.Render(renderer, false, &activeRectangle);
+        _textTexture.Render(renderer, nullptr, &activeRectangle);
     }
 }
 

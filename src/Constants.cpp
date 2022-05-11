@@ -5,6 +5,7 @@ namespace Constants::Paths
 
 const std::string BASEPATH            = "res/";
 const std::string FONTS               = BASEPATH + "fonts/";
+const std::string TILESETS            = BASEPATH + "tilesets/";
 const std::string IMAGES              = BASEPATH + "images/";
 const std::string MUSICS              = BASEPATH + "musics/";
 const std::string SOUNDS              = BASEPATH + "sounds/";
@@ -21,6 +22,20 @@ const std::string PERMANENTMARKER     = FONTS + "permanentmarker.ttf";
 const std::string RUBIKBUBBLES        = FONTS + "rubikbubbles.ttf";
 
 } // end namespace Constants::Fonts::TTF
+
+namespace Constants::Tilesets
+{
+using Constants::Paths::TILESETS;
+
+    namespace FPT
+    {
+
+    const std::string FPT_PATH = TILESETS + "freetileset/png/";
+    const std::string BG       = FPT_PATH + "BG/BG.png";
+
+    } // end namespace Constants::Tilesets::FPT
+
+} // end namespace Constants::Tilesets
 
 namespace Constants::Images
 {

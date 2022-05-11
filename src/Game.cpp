@@ -101,7 +101,10 @@ Game::loadLevel(void)
         75.0f, // standard speed
         50.0f  // radius
     );
-    _currentLevel = GameLevel::CreateLevel(_sdl, _arenaSize, gravity, friction, _player.get());
+    _currentLevel = GameLevel::CreateLevel(
+        _sdl, _resMgr, _arenaSize, Constants::Tilesets::FPT::BG,
+        gravity, friction, _player.get()
+    );
 
     setGameState(State::RUNNING);
 }
