@@ -118,6 +118,14 @@ Renderer::SetVsync(bool enabled) const
 }
 
 void
+Renderer::SetRenderTarget(SDL_Texture* texture) const
+{
+    if (SDL_SetRenderTarget(_renderer, texture) != 0) {
+        Logger::Debug("Unable to set render target: {}", SDL_GetError());
+    }
+}
+
+void
 Renderer::RenderCopy(SDL_Texture* texture, const SDL_Rect* srcrect, const SDL_Rect* dstrect) const
 {
     if (SDL_RenderCopy(_renderer, texture, srcrect, dstrect) != 0) {

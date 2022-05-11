@@ -43,6 +43,10 @@ public:
     void SetDrawBlendMode(BlendMode blendMode)    const;
     void SetVsync(bool enabled)                   const;
 
+    /// Set the target to render to.
+    /// @param texture the target to render to. Default arg is nullptr which sets the target to the screen.
+    void SetRenderTarget(SDL_Texture* texture = nullptr) const;
+
     /// Copy a portion of the texture to the current rendering target.
     /// @param texture The source texture to copy to the rendering target.
     /// @param srcrect The rectangle defining the portion to copy. nullptr = copy whole texture.
