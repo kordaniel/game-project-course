@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 
 set(headers
     "Background.hpp"
-#    "Camera.hpp"
+    "Camera.hpp"
     "Color.hpp"
     "Constants.hpp"
     "Font.hpp"
@@ -33,7 +33,7 @@ set(headers
 
 set(sources
     "Background.cpp"
-#    "Camera.cpp"
+    "Camera.cpp"
     "Color.cpp"
     "Constants.cpp"
     "Font.cpp"

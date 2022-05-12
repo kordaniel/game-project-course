@@ -35,5 +35,6 @@
 | 1h   | 2022-05-09 | Study c++ macros & use macros to conditionally inclue profiling code in main game loop, refactor callbacks |
 | 1h   | 2022-05-09 | Refactor GameObject to be a base class. Add PlayerObject extending it to represent player |
 | 1h   | 2022-05-11 | Add infinitely scrolling background |
-| 58h  |            | Total time spent |
+| 2h   | 2022-05-12 | Research game cameras, implement camera class and center player in the middle of the x-axis. Minor refactoring to other classes |
+| 60h  |            | Total time spent |
 

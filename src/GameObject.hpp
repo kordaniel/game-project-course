@@ -1,6 +1,7 @@
 #ifndef GAMEOBJECT_HPP
 #define GAMEOBJECT_HPP
 
+#include "Camera.hpp"
 #include "Geometry.hpp"
 #include "Renderer.hpp"
 #include "Timetools.hpp"
@@ -80,7 +81,7 @@ public:
     ~GraphicsComponent(void) = default;
 
     void SetParent(const GameObject* parent);
-    void Draw(const Renderer& renderer, Timestep it) const;
+    void Draw(const Renderer& renderer, const Camera& camera, Timestep it) const;
 
 private:
     const GameObject* _parent;
@@ -121,7 +122,7 @@ public:
     /// Draws the object on the renderers current target buffer
     /// @param renderer Renderer to use.
     /// @param it Interpolation timestep for correcting position between updates.
-    virtual void Draw(const Renderer& renderer, Timestep it) const override;
+    virtual void Draw(const Renderer& renderer, const Camera& camera, Timestep it) const override;
 
 protected:
     InputComponent    _inputComponent;

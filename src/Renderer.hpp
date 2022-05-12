@@ -3,6 +3,7 @@
 
 #include <SDL.h>
 
+#include "Camera.hpp"
 #include "Color.hpp"
 #include "Geometry.hpp"
 #include "Timetools.hpp"
@@ -92,6 +93,8 @@ private:
 
 };
 
+
+// TODO: Delete this interface(?)
 class DrawableObject
 {
 public:
@@ -100,7 +103,7 @@ public:
     DrawableObject(DrawableObject&& other)      = delete;
     virtual ~DrawableObject(void) = default;
 
-    virtual void Draw(const Renderer& renderer, Timestep it) const = 0;
+    virtual void Draw(const Renderer& renderer, const Camera& camera, Timestep it) const = 0;
 };
 
 #endif // RENDERER_HPP

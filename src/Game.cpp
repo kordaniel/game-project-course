@@ -222,7 +222,7 @@ Game::handleGame(void)
         IF_LOG_TIME(_currentLevel->Draw(_sdl.GetRenderer(), _glt.GetLag()), "Draw to target");
 
         IF_LOG_TIME(
-            _sdl.GetRenderer().SetRenderDrawColor({ Constants::Colors::LIGHT });
+            _sdl.GetRenderer().SetRenderDrawColor({ Constants::Colors::LIGHT }); // TODO: Remove(?)
             _sdl.GetRenderer().RenderPresent(true), "Rendering trgt"
         );
 

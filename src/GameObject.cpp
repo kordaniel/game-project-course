@@ -69,7 +69,7 @@ GraphicsComponent::SetParent(const GameObject* parent)
 }
 
 void
-GraphicsComponent::Draw(const Renderer& renderer, Timestep it) const
+GraphicsComponent::Draw(const Renderer& renderer, const Camera& camera, Timestep it) const
 {
     assert(_parent != nullptr);
 
@@ -77,7 +77,7 @@ GraphicsComponent::Draw(const Renderer& renderer, Timestep it) const
     {
         renderer.SetRenderDrawColor({ Constants::Colors::RED });
         renderer.DrawCircleFilled(
-             ptr->GetTransform().GetScreenCoords(it),
+             camera.Transform(ptr->GetTransform().GetScreenCoords(it)),
              static_cast<int>(ptr->GetRadius() + 0.5f)
         );
     } else {
@@ -138,9 +138,9 @@ GameObject::ApplyForce(float angleDegrees, float force)
 }
 
 void
-GameObject::Draw(const Renderer& renderer, Timestep it) const
+GameObject::Draw(const Renderer& renderer, const Camera& camera, Timestep it) const
 { // virtual override member from DrawableObject
-    _graphicsComponent.Draw(renderer, it);
+    _graphicsComponent.Draw(renderer, camera, it);
 }
 
 
@@ -174,7 +174,7 @@ PlayerObject::Update(const Physics& physics, Dimensions2D boundaries, Timestep d
         {
             _radius,
             _radius,
-            100.0f * static_cast<float>(boundaries.W) - _radius,
+            static_cast<float>(boundaries.W) - _radius,
             static_cast<float>(boundaries.H) - _radius
         },
         dt

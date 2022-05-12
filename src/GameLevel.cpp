@@ -22,10 +22,13 @@ GameLevel::GameLevel(Sdl2& sdl2, ResourceManager& resMgr, Dimensions2D arenaSize
     , _background(backgroundFilepath)
     , _physics(gravity, friction)
     , _player(player)
+    , _camera()
 {
     assert(player != nullptr);
     player->SetPosition(2.0f * player->GetRadius(), 2.0f * _player->GetRadius());
     _background.UpdateTexture(_sdl2.GetRenderer());
+    _camera.SetCenterPosition(_player->GetPosition());
+    _camera.SetDimensions(_arenaSize);
 }
 
 Dimensions2DF
@@ -47,11 +50,13 @@ void
 GameLevel::Update(Timestep dt)
 {
     _player->Update(_physics, _arenaSize, dt);
+    _camera.TrackPosition(_player->GetPosition(), 0.15f);
+    _background.SetPosition(_camera);
 }
 
 void
 GameLevel::Draw(const Renderer& renderer, Timestep it) const
 {
-    _background.Draw(renderer, true, _player->GetTransform().GetScreenCoords(it));
-    _player->Draw(renderer, it);
+    _background.Draw(renderer, true);
+    _player->Draw(renderer, _camera, it);
 }

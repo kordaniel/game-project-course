@@ -8,7 +8,7 @@
 #include "Physics.hpp"
 #include "GameObject.hpp"
 #include "Renderer.hpp"
-
+#include "Camera.hpp"
 #include "Background.hpp"
 
 #include <memory>
@@ -40,13 +40,14 @@ public:
     void Draw(const Renderer& renderer, Timestep it) const;
 
 private:
-    Sdl2&             _sdl2;
+    Sdl2&            _sdl2;
     ResourceManager& _resMgr;
     Dimensions2D     _arenaSize;
     Background       _background;
     Physics          _physics;
 
-    PlayerObject* _player;
+    PlayerObject*    _player;
+    Camera           _camera;
     // entitiesList
 };
 

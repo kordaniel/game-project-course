@@ -1,9 +1,12 @@
 #ifndef BACKGROUND_HPP
 #define BACKGROUND_HPP
 
+#include "Camera.hpp"
 #include "Renderer.hpp"
 #include "Texture.hpp"
+#include "Timetools.hpp"
 
+#include <glm/vec4.hpp>
 #include <SDL.h>
 #include <string>
 
@@ -21,7 +24,8 @@ public:
     const SDL_Surface* GetSurface(void) const;
     const SDL_Texture* GetTexture(void) const;
 
-    void Draw(const Renderer& renderer, bool scaleToDstRect, Point2D center) const;
+    void SetPosition(const Camera& camera);
+    void Draw(const Renderer& renderer, Timestep it) const;
 
 private:
     const std::string _filepath;

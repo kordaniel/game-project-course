@@ -37,16 +37,20 @@ const SDL_Texture*
 Background::GetTexture(void) const { return _imageTexture.GetTexture(); }
 
 void
-Background::Draw(const Renderer& renderer, bool scaleToDstRect, Point2D center) const
+Background::SetPosition(const Camera& camera)
 {
-    int x = center.X;
-    x %= _imageRect.w;
+    _imageRect.x = camera.GetTopLeftPosition().X % _imageRect.w;
+    _imageRect.x += _imageRect.w;
+    _imageRect.x %= _imageRect.w;
 
-    SDL_Rect srcrect = { x, 0, _imageRect.w, _imageRect.h };
+    //_imageRect.y = camera.GetTopLeftPosition().Y % _imageRect.h;
+    //_imageRect.y += _imageRect.h;
+    //_imageRect.y %= _imageRect.h;
+}
 
-    if (scaleToDstRect) {
-        _imageTexture.Render(renderer, &srcrect, nullptr);
-    } else {
-        _imageTexture.Render(renderer, &srcrect, &_imageRect);
-    }
+void
+Background::Draw(const Renderer& renderer, [[maybe_unused]] Timestep it) const
+{
+    // TODO: Interpolate bg position, is it needed?
+    _imageTexture.Render(renderer, &_imageRect, nullptr);
 }
