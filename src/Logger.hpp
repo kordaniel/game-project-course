@@ -17,9 +17,22 @@
 #include <glm/mat4x4.hpp>
 #include <glm/gtx/string_cast.hpp>
 
+#include <SDL_rect.h> // Defines rect, point, etc.. several SDL_objects
+
 
 namespace fmt
 {
+
+    template<>
+    struct formatter<SDL_Rect>
+    {
+        constexpr auto parse(format_parse_context& ctx) -> decltype(ctx.begin())
+        { return ctx.begin(); }
+
+        template<typename FormatContext>
+        auto format(SDL_Rect rect, FormatContext& ctx) -> decltype(ctx.out())
+        { return fmt::format_to(ctx.out(), "({},{}) - ({},{})", rect.x, rect.y, rect.w, rect.h); }
+    };
 
     template<>
     struct formatter<Point2D>

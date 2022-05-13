@@ -7,9 +7,10 @@ link_libraries(fmt::fmt-header-only)
 include_directories(
     PRIVATE "${CMAKE_CURRENT_BINARY_DIR}"
     PRIVATE "${CMAKE_SOURCE_DIR}/src"
+    PRIVATE "${sdl2-main_SOURCE_DIR}/include"
 )
 
-link_libraries(gtest gmock gtest_main)
+link_libraries(gtest gmock gtest_main SDL2::SDL2)
 
 set(LoggerTest "LoggerTest")
 set(LoggerTestSources
