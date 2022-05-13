@@ -2,6 +2,7 @@
 #define LOGGER_HPP
 
 #include "Timetools.hpp"
+#include "Geometry.hpp"
 
 #include <string>
 #include <string_view>
@@ -16,6 +17,21 @@
 #include <glm/mat4x4.hpp>
 #include <glm/gtx/string_cast.hpp>
 
+
+template<>
+struct fmt::formatter<Point2D>
+{
+    constexpr auto parse(format_parse_context& ctx) -> decltype(ctx.begin())
+    {
+        return ctx.begin();
+    }
+
+    template<typename FormatContext>
+    auto format(Point2D p, FormatContext& ctx) -> decltype(ctx.out())
+    {
+        return fmt::format_to(ctx.out(), "({},{})", p.X, p.Y);
+    }
+};
 
 template<>
 struct fmt::formatter<Timestep>
