@@ -18,97 +18,94 @@
 #include <glm/gtx/string_cast.hpp>
 
 
-template<>
-struct fmt::formatter<Point2D>
+namespace fmt
 {
-    constexpr auto parse(format_parse_context& ctx) -> decltype(ctx.begin())
+
+    template<>
+    struct formatter<Point2D>
     {
-        return ctx.begin();
-    }
+        constexpr auto parse(format_parse_context& ctx) -> decltype(ctx.begin())
+        { return ctx.begin(); }
 
-    template<typename FormatContext>
-    auto format(Point2D p, FormatContext& ctx) -> decltype(ctx.out())
+        template<typename FormatContext>
+        auto format(Point2D p, FormatContext& ctx) -> decltype(ctx.out())
+        { return fmt::format_to(ctx.out(), "({},{})", p.X, p.Y); }
+    };
+
+    template<>
+    struct formatter<Dimensions2D>
     {
-        return fmt::format_to(ctx.out(), "({},{})", p.X, p.Y);
-    }
-};
+        constexpr auto parse(format_parse_context& ctx) -> decltype(ctx.begin())
+        { return ctx.begin(); }
 
-template<>
-struct fmt::formatter<Timestep>
-{
-    constexpr auto parse(format_parse_context& ctx) -> decltype(ctx.begin())
+        template<typename FormatContext>
+        auto format(Dimensions2D dim, FormatContext& ctx) -> decltype(ctx.out())
+        { return fmt::format_to(ctx.out(), "({},{})", dim.W, dim.H); }
+    };
+
+    template<>
+    struct formatter<Timestep>
     {
-        return ctx.begin();
-    }
+        constexpr auto parse(format_parse_context& ctx) -> decltype(ctx.begin())
+        { return ctx.begin(); }
 
-    template<typename FormatContext>
-    auto format(Timestep ts, FormatContext& ctx) -> decltype(ctx.out())
+        template<typename FormatContext>
+        auto format(Timestep ts, FormatContext& ctx) -> decltype(ctx.out())
+        { return fmt::format_to(ctx.out(), "{}", static_cast<double>(ts)); }
+    };
+
+    template<>
+    struct formatter<glm::vec3>
     {
-        return fmt::format_to(ctx.out(), "{}", static_cast<double>(ts));
-    }
-};
+        constexpr auto parse(format_parse_context& ctx) -> decltype(ctx.begin())
+        { return ctx.begin(); }
 
-template<>
-struct fmt::formatter<glm::vec3>
-{
-    constexpr auto parse(format_parse_context& ctx) -> decltype(ctx.begin())
+        template<typename FormatContext>
+        auto format(glm::vec3 const& vec3, FormatContext& ctx) -> decltype(ctx.out())
+        { return fmt::format_to(ctx.out(), "{}", glm::to_string(vec3)); }
+    };
+
+    template<>
+    struct formatter<glm::vec4>
     {
-        return ctx.begin();
-    }
+        constexpr auto parse(format_parse_context& ctx) -> decltype(ctx.begin())
+        { return ctx.begin(); }
 
-    template<typename FormatContext>
-    auto format(glm::vec3 const& vec3, FormatContext& ctx) -> decltype(ctx.out())
+        template<typename FormatContext>
+        auto format(glm::vec4 const& vec4, FormatContext& ctx) -> decltype(ctx.out())
+        { return fmt::format_to(ctx.out(), "{}", glm::to_string(vec4)); }
+    };
+
+    template<>
+    struct formatter<glm::mat4>
     {
-        return fmt::format_to(ctx.out(), "{}", glm::to_string(vec3));
-    }
-};
+        constexpr auto parse(format_parse_context& ctx) -> decltype(ctx.begin())
+        { return ctx.begin(); }
 
-template<>
-struct fmt::formatter<glm::vec4>
-{
-    constexpr auto parse(format_parse_context& ctx) -> decltype(ctx.begin())
-    {
-        return ctx.begin();
-    }
+        /// Formats the glm::mat4 as a row ordered matrix, in contrast to glm:s internal column order.
+        template<typename FormatContext>
+        auto format(glm::mat4 const& mat4, FormatContext& ctx) -> decltype(ctx.out())
+        {
+            const std::string formatRow = "{: > 15.9f},{: > 15.9f},{: > 15.9f},{: > 15.9f}\n";
+            const std::string formatStr =
+                "mat4x4(\n" +
+                formatRow +
+                formatRow +
+                formatRow +
+                formatRow + ")";
 
-    template<typename FormatContext>
-    auto format(glm::vec4 const& vec4, FormatContext& ctx) -> decltype(ctx.out())
-    {
-        return fmt::format_to(ctx.out(), "{}", glm::to_string(vec4));
-    }
-};
+            return fmt::format_to(
+                ctx.out(),
+                formatStr,
+                mat4[0][0], mat4[1][0], mat4[2][0], mat4[3][0],
+                mat4[0][1], mat4[1][1], mat4[2][1], mat4[3][1],
+                mat4[0][2], mat4[1][2], mat4[2][2], mat4[3][2],
+                mat4[0][3], mat4[1][3], mat4[2][3], mat4[3][3]
+            );
+        }
+    };
 
-template<>
-struct fmt::formatter<glm::mat4>
-{
-    constexpr auto parse(format_parse_context& ctx) -> decltype(ctx.begin())
-    {
-        return ctx.begin();
-    }
-
-    /// Formats the glm::mat4 as a row ordered matrix, in contrast to glm:s internal column order.
-    template<typename FormatContext>
-    auto format(glm::mat4 const& mat4, FormatContext& ctx) -> decltype(ctx.out())
-    {
-        const std::string formatRow = "{: > 15.9f},{: > 15.9f},{: > 15.9f},{: > 15.9f}\n";
-        const std::string formatStr =
-            "mat4x4(\n" +
-            formatRow +
-            formatRow +
-            formatRow +
-            formatRow + ")";
-
-        return fmt::format_to(
-            ctx.out(),
-            formatStr,
-            mat4[0][0], mat4[1][0], mat4[2][0], mat4[3][0],
-            mat4[0][1], mat4[1][1], mat4[2][1], mat4[3][1],
-            mat4[0][2], mat4[1][2], mat4[2][2], mat4[3][2],
-            mat4[0][3], mat4[1][3], mat4[2][3], mat4[3][3]
-        );
-    }
-};
-
+} // end namespace fmt
 
 class Logger
 {
