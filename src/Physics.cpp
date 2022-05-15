@@ -119,6 +119,12 @@ PhysicsObject::SetVelocity(const glm::vec3& velocity)
     _velocity = glm::vec4(velocity, 1.0f);
 }
 
+void
+PhysicsObject::SetYVelocityZero(void)
+{
+    _velocity.y = 0.0f;
+}
+
 const glm::vec4&
 PhysicsObject::GetPosition(void) const { return _position; }
 

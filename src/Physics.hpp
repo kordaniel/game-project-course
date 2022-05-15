@@ -84,6 +84,7 @@ public:
 
     void SetPosition(const glm::vec3& position);
     void SetVelocity(const glm::vec3& velocity);
+    void SetYVelocityZero(void);
 
     const glm::vec4& GetPosition(void)     const;
     const glm::vec4& GetVelocity(void)     const;
