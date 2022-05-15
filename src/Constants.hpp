@@ -2,6 +2,7 @@
 #define CONSTANTS_HPP
 
 #include "Color.hpp"
+#include "Geometry.hpp"
 
 #include <cstdint>
 #include <string>
@@ -9,6 +10,9 @@
 
 namespace Constants
 {
+    extern const std::string  SCREEN_TITLE;
+    extern const Dimensions2D RENDER_SIZE;
+
     namespace Paths
     {
         extern const std::string BASEPATH;

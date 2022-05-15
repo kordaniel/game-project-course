@@ -94,12 +94,13 @@ class GameObject : public DrawableObject
 {
 public:
     static std::unique_ptr<PlayerObject> CreatePlayer(Input& input, float posX, float posY, float moveSpeed, float radius);
+    static std::unique_ptr<GameObject>   CreateBox(Input& input, float moveSpeed, Point2DF position, Dimensions2DF size);
 
 public:
     GameObject(Input& input, float posX, float posY, float moveSpeed);
     GameObject(const GameObject& other) = delete;
     GameObject(GameObject&& other)      = delete;
-    virtual ~GameObject(void) = default;
+    virtual ~GameObject(void);
 
     bool  IsAlive(void)                 const;
     const glm::vec4& GetPosition(void)  const;
@@ -148,6 +149,24 @@ public:
 
 private:
     float _radius;
+
+};
+
+
+class BoxObject : public GameObject
+{
+public:
+    BoxObject(Input& input, Point2DF position, Dimensions2DF size, float moveSpeed);
+    BoxObject(const BoxObject& other) = delete;
+    BoxObject(BoxObject&& other) = delete;
+    ~BoxObject(void) = default;
+
+    Dimensions2DF GetSize(void) const;
+
+    virtual void Update(const Physics& physics, Dimensions2D boundaries, Timestep dt) override;
+
+private:
+    Dimensions2DF _size;
 
 };
 

@@ -12,6 +12,7 @@
 #include "Background.hpp"
 
 #include <memory>
+#include <vector>
 
 
 class GameLevel
@@ -40,6 +41,9 @@ public:
     void Draw(const Renderer& renderer, Timestep it) const;
 
 private:
+    void initLevelObjects(void);
+
+private:
     Sdl2&            _sdl2;
     ResourceManager& _resMgr;
     Dimensions2D     _arenaSize;
@@ -48,7 +52,8 @@ private:
 
     PlayerObject*    _player;
     Camera           _camera;
-    // entitiesList
+
+    std::vector<std::unique_ptr<GameObject>> _levelObjects;
 };
 
 #endif // GAMELEVEL_HPP

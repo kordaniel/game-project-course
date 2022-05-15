@@ -37,7 +37,7 @@ public:
     static void LogMixerVersion(void);
 
 public:
-    Sdl2(const std::string& windowTitle, Dimensions2D windowSize, ResourceManager& resourceManager);
+    Sdl2(const std::string& windowTitle, Dimensions2D renderAndWindowSize, ResourceManager& resourceManager);
     ~Sdl2(void);
 
     void RegisterQuitEventCallback(const EventCallback quitCallback);

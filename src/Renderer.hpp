@@ -7,6 +7,7 @@
 #include "Color.hpp"
 #include "Geometry.hpp"
 #include "Timetools.hpp"
+#include "Window.hpp"
 
 
 class Renderer
@@ -19,7 +20,7 @@ public:
         MOD   = SDL_BLENDMODE_MOD    // "Color modulate"
     };
 
-    Renderer(SDL_Window* window, bool vsync = true, bool accelerated = true);
+    Renderer(Window& window, bool vsync = true, bool accelerated = true);
     Renderer(const Renderer& other) = delete;
     Renderer(Renderer&& other)      = delete;
     ~Renderer(void);
@@ -30,6 +31,9 @@ public:
     Dimensions2D  GetMaxTextureSize(void) const;
     bool          GetIsVsyncced(void)     const;
     SDL_Renderer* GetSdlRenderer(void)    const;
+    Rectangle     GetViewport(void)       const;
+
+    void          ToggleFullscreen(void)  const;
 
     /// Swap framebuffers, "draw".
     /// @param: doRenderClear Has the default value true. If this is true, then
@@ -37,12 +41,12 @@ public:
     void RenderPresent(bool doRenderClear = true) const;
     
     /// Clear the entire screen to our selected color.
-    void RenderClear(void)                        const;
-
-    void SetRenderDrawColor(Color c)              const;
-    void SetLogicalSize(Dimensions2D size)        const;
-    void SetDrawBlendMode(BlendMode blendMode)    const;
-    void SetVsync(bool enabled)                   const;
+    void RenderClear(void)                     const;
+    void SetRenderDrawColor(Color c)           const;
+    void SetLogicalSize(Dimensions2D size)     const;
+    void SetDrawBlendMode(BlendMode blendMode) const;
+    void SetVsync(bool enabled)                const;
+    void SetViewport(const SDL_Rect* viewPort = nullptr) const;
 
     /// Set the target to render to.
     /// @param texture the target to render to. Default arg is nullptr which sets the target to the screen.
@@ -83,12 +87,15 @@ public:
     void FillRectangle(Rectangle rectangle)  const;
     void FillRectangle(Rectangle* rectangle) const;
 
+    void DrawFilledRectangle(Point2D posCentre, Dimensions2D size) const;
+
 private:
     Uint32 getFlags(void) const;
     static Uint32 combineRendererFlags(bool renderSoftware, bool renderAccelerated,
                                        bool presentVsync, bool renderTargetTexture);
 
 private:
+    Window&       _targetWindow;
     SDL_Renderer* _renderer;
 
 };

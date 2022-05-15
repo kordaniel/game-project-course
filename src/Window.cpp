@@ -4,12 +4,11 @@
 #include <cassert>
 
 
-// TODO: Use Dimension2D for width&height
-Window::Window(const std::string& title, int width, int height, bool fullscreen, bool opengl)
+Window::Window(const std::string& title, Dimensions2D size, bool fullscreen, bool opengl)
   : _window(SDL_CreateWindow(title.c_str(),
                              SDL_WINDOWPOS_UNDEFINED,
                              SDL_WINDOWPOS_UNDEFINED,
-                             width, height, Window::combineWindowFlags(fullscreen, opengl)))
+                             size.W, size.H, Window::combineWindowFlags(fullscreen, opengl)))
 {
     if (_window != nullptr) {
         Logger::Debug("Window \"{}\" created!", title);
@@ -62,6 +61,25 @@ bool
 Window::IsFullscreen(void) const
 {
     return SDL_GetWindowFlags(_window) & SDL_WINDOW_FULLSCREEN_DESKTOP;
+}
+
+Dimensions2D
+Window::GetSize(void) const
+{
+    Dimensions2D size;
+    SDL_GetWindowSize(_window, &size.W, &size.H);
+    return size;
+}
+
+size_t
+Window::GetRefreshrate(void) const
+{
+    SDL_DisplayMode mode;
+    if (SDL_GetWindowDisplayMode(_window, &mode) != 0) {
+        Logger::Debug("Unable to query window display mode: {}", SDL_GetError());
+        return 0;
+    }
+    return static_cast<size_t>(mode.refresh_rate);
 }
 
 Uint32

@@ -73,14 +73,27 @@ GraphicsComponent::Draw(const Renderer& renderer, const Camera& camera, Timestep
 {
     assert(_parent != nullptr);
 
-    if (const PlayerObject* ptr = dynamic_cast<const PlayerObject*>(_parent))
+    if (const PlayerObject* playerPtr = dynamic_cast<const PlayerObject*>(_parent))
     {
         renderer.SetRenderDrawColor({ Constants::Colors::RED });
         renderer.DrawCircleFilled(
-             camera.Transform(ptr->GetTransform().GetScreenCoords(it)),
-             static_cast<int>(ptr->GetRadius() + 0.5f)
+             camera.Transform(playerPtr->GetTransform().GetScreenCoords(it)),
+             static_cast<int>(playerPtr->GetRadius() + 0.5f)
         );
-    } else {
+    }
+    else if (const BoxObject* ptr = dynamic_cast<const BoxObject*>(_parent))
+    {
+        renderer.SetRenderDrawColor({ Constants::Colors::DARK });
+        renderer.DrawFilledRectangle(
+            camera.Transform(ptr->GetTransform().GetScreenCoords(it)),
+            {
+                static_cast<int>(ptr->GetSize().W + 0.5f),
+                static_cast<int>(ptr->GetSize().H + 0.5f)
+            }
+        );
+    }
+    else
+    {
         Logger::Debug("Dynamic casting of GraphicsComponent owner failed");
         assert(false);
     }
@@ -93,12 +106,23 @@ GameObject::CreatePlayer(Input& input, float posX, float posY, float moveSpeed, 
     return std::make_unique<PlayerObject>(input, posX, posY, moveSpeed, radius);
 }
 
+std::unique_ptr<GameObject>
+GameObject::CreateBox(Input& input, float moveSpeed, Point2DF position, Dimensions2DF size)
+{ // Static function
+    return std::make_unique<BoxObject>(input, position, size, moveSpeed);
+}
+
 GameObject::GameObject(Input& input, float posX, float posY, float moveSpeed)
     : _inputComponent(input, *this)
     , _graphicsComponent()
     , _transform(posX, posY, moveSpeed)
 {
-    //
+    // Logger::Debug("Gameobject Constructed");
+}
+
+GameObject::~GameObject(void)
+{
+    // Logger::Debug("GameObject Destructed");
 }
 
 bool
@@ -179,4 +203,20 @@ PlayerObject::Update(const Physics& physics, Dimensions2D boundaries, Timestep d
         },
         dt
     );
+}
+
+BoxObject::BoxObject(Input& input, Point2DF position, Dimensions2DF size, float moveSpeed)
+    : GameObject(input, position.X, position.Y, moveSpeed)
+    , _size(size)
+{
+    _graphicsComponent.SetParent(this);
+}
+
+Dimensions2DF
+BoxObject::GetSize(void) const { return _size; }
+
+void
+BoxObject::Update([[maybe_unused]] const Physics& physics, [[maybe_unused]] Dimensions2D boundaries, [[maybe_unused]] Timestep dt)
+{
+    // Do nothing
 }

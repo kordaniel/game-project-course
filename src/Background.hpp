@@ -24,8 +24,7 @@ public:
     const SDL_Surface* GetSurface(void) const;
     const SDL_Texture* GetTexture(void) const;
 
-    void SetPosition(const Camera& camera);
-    void Draw(const Renderer& renderer, Timestep it) const;
+    void Draw(const Renderer& renderer, const Camera& camera, Timestep it) const;
 
 private:
     const std::string _filepath;

@@ -2,16 +2,15 @@
 #include "Logger.hpp"
 
 
-Renderer::Renderer(SDL_Window* window, bool vsync, bool accelerated)
-    : _renderer(SDL_CreateRenderer(window, -1,
+Renderer::Renderer(Window& window, bool vsync, bool accelerated)
+    : _targetWindow(window)
+    , _renderer(SDL_CreateRenderer(_targetWindow.GetSdlWindow(), -1,
         Renderer::combineRendererFlags(false, accelerated, vsync, false))
     )
 {
     if (_renderer == nullptr) {
         Logger::Debug("Unable to create renderer: {}", SDL_GetError());
     }
-    // Docs: https://wiki.libsdl.org/SDL_RenderSetLogicalSize
-    //SDL_RenderSetLogicalSize(_renderer, 1280, 720);
 }
 
 Renderer::~Renderer(void)
@@ -70,6 +69,22 @@ Renderer::GetSdlRenderer(void) const
     return _renderer;
 }
 
+Rectangle
+Renderer::GetViewport(void) const
+{
+    SDL_Rect vp;
+    SDL_RenderGetViewport(_renderer, &vp);
+    return { vp.x, vp.y, vp.w, vp.h };
+}
+
+void
+Renderer::ToggleFullscreen(void) const
+{
+    _targetWindow.ToggleFullscreen();
+    //SetViewport();
+    //SetRenderTarget();
+}
+
 void
 Renderer::RenderPresent(bool doRenderClear) const
 {
@@ -114,6 +129,14 @@ Renderer::SetVsync(bool enabled) const
 { // TODO: Adaptive vsync - https://wiki.libsdl.org/SDL_GL_SetSwapInterval
     if (SDL_GL_SetSwapInterval((enabled ? 1 : 0)) != 0) {
         Logger::Debug("Unable to set vsync to {}: {}", (enabled ? 1 : 0), SDL_GetError());
+    }
+}
+
+void
+Renderer::SetViewport(const SDL_Rect* viewPort) const
+{
+    if (SDL_RenderSetViewport(_renderer, viewPort) != 0) {
+        Logger::Debug("Unable to set render viewport: {}", SDL_GetError());
     }
 }
 
@@ -229,12 +252,22 @@ Renderer::FillRectangle(Rectangle rectangle) const
 
 void
 Renderer::FillRectangle(Rectangle* rectangle) const
-{ // NOTE: This method has not been tested
-  // TODO: Cast rectangle to SDL_Rect
+{
     SDL_Rect sdlRect = { rectangle->X, rectangle->Y, rectangle->W, rectangle->H };
     if (SDL_RenderFillRect(_renderer, &sdlRect) != 0) {
         Logger::Debug("Renderer was not able to fill a rectangle: {}", SDL_GetError());
     }
+}
+
+void
+Renderer::DrawFilledRectangle(Point2D posCentre, Dimensions2D size) const
+{
+    Rectangle rect = {
+        posCentre.X - size.W / 2,
+        posCentre.Y - size.H / 2,
+        size.W, size.H
+    };
+    FillRectangle(&rect);
 }
 
 // Private methods

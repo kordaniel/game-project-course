@@ -37,7 +37,7 @@
 class Game
 {
 public:
-    Game(Sdl2& sdl, ResourceManager& resourceManager, int width = 1280, int height = 720);
+    Game(Sdl2& sdl, ResourceManager& resourceManager);
     Game(const Game& other) = delete; // Copy constructor
     Game(Game&& other)      = delete; // Move constructor
     ~Game(void);
@@ -56,7 +56,8 @@ private:
     void handlePaused(void);
 
 private:
-    Dimensions2D     _arenaSize;
+    size_t           _targetFPS, _targetUPS;
+    double           _maxDt;
     State            _state;
     Sdl2&            _sdl;
     ResourceManager& _resMgr; // TODO: Delete after refactoring(?)

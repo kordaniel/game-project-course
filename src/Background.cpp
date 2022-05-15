@@ -37,20 +37,17 @@ const SDL_Texture*
 Background::GetTexture(void) const { return _imageTexture.GetTexture(); }
 
 void
-Background::SetPosition(const Camera& camera)
-{
-    _imageRect.x = camera.GetTopLeftPosition().X % _imageRect.w;
-    _imageRect.x += _imageRect.w;
-    _imageRect.x %= _imageRect.w;
-
-    //_imageRect.y = camera.GetTopLeftPosition().Y % _imageRect.h;
-    //_imageRect.y += _imageRect.h;
-    //_imageRect.y %= _imageRect.h;
-}
-
-void
-Background::Draw(const Renderer& renderer, [[maybe_unused]] Timestep it) const
+Background::Draw(const Renderer& renderer, const Camera& camera, [[maybe_unused]] Timestep it) const
 {
     // TODO: Interpolate bg position, is it needed?
-    _imageTexture.Render(renderer, &_imageRect, nullptr);
+    assert(_imageRect.w == camera.GetDimensions().W); // background image must be of same width as the camera viewport width
+
+    SDL_Rect transformed = {
+        ((camera.GetX() % _imageRect.w) + _imageRect.w) % _imageRect.w,
+        _imageRect.y,
+        _imageRect.w,
+        _imageRect.h
+    };
+
+    _imageTexture.Render(renderer, &transformed, nullptr);
 }

@@ -1,5 +1,11 @@
 #include "Constants.hpp"
 
+
+const std::string  Constants::SCREEN_TITLE = "Game Project";
+
+// ( TODO: Implement bg scaling) // Render size width must be of the same size as the width of the used background image, no scaling implemented
+const Dimensions2D Constants::RENDER_SIZE = { 1000, 750 };
+
 namespace Constants::Paths
 {
 

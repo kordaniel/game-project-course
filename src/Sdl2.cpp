@@ -239,14 +239,15 @@ Sdl2::LogMixerVersion(void)
     Logger::Debug("Linked against SDL_Mixer version:  {}.{}.{}", linked->major, linked->minor, linked->patch);
 }
 
-Sdl2::Sdl2(const std::string& windowTitle, Dimensions2D windowSize, ResourceManager& ResourceManager)
+Sdl2::Sdl2(const std::string& windowTitle, Dimensions2D renderAndWindowSize, ResourceManager& ResourceManager)
     : _input()
-    , _window(windowTitle, windowSize.W, windowSize.H)
-    , _renderer(GetSdlWindow())
+    , _window(windowTitle, renderAndWindowSize)
+    , _renderer(_window)
     , _mixer(ResourceManager)
     , _quitEventCallback(nullptr)
 {
     assert(IsInitialized()); // Sdl2::Initialize();
+    _renderer.SetLogicalSize(renderAndWindowSize);
 }
 
 Sdl2::~Sdl2(void)
@@ -280,17 +281,12 @@ Sdl2::PollEvents(void)
                 else { Logger::Debug("Quit handler not registered"); }
 #endif
                 break;
-/*
-            case SDL_WINDOWEVENT_RESIZED:
-                Logger::Critical("Event: SDL_WINDOWEVENT_RESIZED");
-                break;
             case SDL_RENDER_DEVICE_RESET:
-                Logger::Critical("Event: RENDER_DEVICE_RESET");
+                Logger::Debug("Event: RENDER_DEVICE_RESET");
                 break;
             case SDL_RENDER_TARGETS_RESET:
-                Logger::Critical("Event: RENDER_TARGETS_RESET");
+                Logger::Debug("Event: RENDER_TARGETS_RESET");
                 break;
-*/
             case SDL_WINDOWEVENT: // Triggered when toggling fullscreen
                 switch (_event.window.event)
                 {
@@ -308,16 +304,12 @@ Sdl2::PollEvents(void)
                         Logger::Info("Window moved");
                         break;
 */
-
-// These happen when resizing or toggling fullscreen
                     case ::SDL_WINDOWEVENT_RESIZED: // Docs: This event is always preceeded by ::SDL_WINDOWEVENT_SIZE_CHANGED
-                        Logger::Info("Window resized to {}x{}", _event.window.data1, _event.window.data2);
                         break;
                     case ::SDL_WINDOWEVENT_SIZE_CHANGED:
-                        Logger::Info("Window size changed to {}x{}", _event.window.data1, _event.window.data2);
+                        //_renderer.SetViewport();
+                        //_renderer.SetRenderTarget();
                         break;
-// -------------------------------------------------
-
 /*
                     case ::SDL_WINDOWEVENT_MINIMIZED:
                         Logger::Info("Window minimized");

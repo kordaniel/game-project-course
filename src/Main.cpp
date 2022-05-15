@@ -3,6 +3,7 @@
 #include "ResourceManager.hpp"
 #include "Sdl2.hpp"
 #include "Game.hpp"
+#include "Constants.hpp"
 
 #include <string>
 
@@ -54,18 +55,14 @@ initialize([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 int
 main(int argc, char* argv[])
 {
-    const std::string SCREEN_TITLE("Game project");
-    constexpr int     SCREEN_WIDTH  = 1280;
-    constexpr int     SCREEN_HEIGHT = 720;
-
     if (!initialize(argc, argv)) {
         Logger::Critical("Errors while initializing, terminating!");
         return EXIT_FAILURE;
     }
 
     ResourceManager resourceManager;
-    Sdl2 sdl2Subsystem(SCREEN_TITLE, { SCREEN_WIDTH, SCREEN_HEIGHT }, resourceManager);
-    Game game(sdl2Subsystem, resourceManager);
+    Sdl2 sdl2(Constants::SCREEN_TITLE, Constants::RENDER_SIZE, resourceManager);
+    Game game(sdl2, resourceManager);
 
     game.Run();
 

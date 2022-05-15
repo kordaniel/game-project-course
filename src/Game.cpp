@@ -8,12 +8,14 @@
 #include <cassert>
 
 
-Game::Game(Sdl2& sdl, ResourceManager& resourceManager, int width, int height)
-    : _arenaSize{width, height}
+Game::Game(Sdl2& sdl, ResourceManager& resourceManager)
+    : _targetFPS(60)
+    , _targetUPS(120)
+    , _maxDt(0.2) // Max amount of deltatime to consume per loop iteration
     , _state(State::QUIT)
     , _sdl(sdl)
     , _resMgr(resourceManager)
-    , _glt(60, 120, 0.2) // FPS, UPS, Max amount of deltatime to consume per loop iteration
+    , _glt(_targetFPS, _targetUPS, _maxDt)
     , _callbacks(std::make_shared<ObjectMappedInputCallbacks>())
     , _player(nullptr)
     , _currentLevel(nullptr)
@@ -23,7 +25,7 @@ Game::Game(Sdl2& sdl, ResourceManager& resourceManager, int width, int height)
     _sdl.GetInput().RegisterKeyCallback(
         Input::KeyCode::f,
         Input::EventType::KEYDOWN,
-        std::bind(&Window::ToggleFullscreen, &sdl.GetWindow())
+        std::bind(&Renderer::ToggleFullscreen, &sdl.GetRenderer())
     );
     _sdl.GetInput().RegisterKeyCallback(
         Input::KeyCode::m,
@@ -91,6 +93,7 @@ Game::loadLevel(void)
     _sdl.GetMixer().SetMusicVolume(0.5);
     _sdl.GetMixer().PlayMusicFadeIn(2000);
 
+    Dimensions2D levelDimensions = { 100 * 1280, Constants::RENDER_SIZE.H };
     float gravity  = 100.0f;
     float friction = 0.9f;
 
@@ -102,7 +105,7 @@ Game::loadLevel(void)
         50.0f  // radius
     );
     _currentLevel = GameLevel::CreateLevel(
-        _sdl, _resMgr, _arenaSize, Constants::Tilesets::FPT::BG,
+        _sdl, _resMgr, levelDimensions, Constants::Tilesets::FPT::BG,
         gravity, friction, _player.get()
     );
 
@@ -197,6 +200,8 @@ Game::handleGame(void)
         IF_LOG_INIT();
 
         _glt.InitIteration();
+
+        _sdl.GetRenderer().RenderClear();
         _mousePos = _sdl.PollEvents();
 
         IF_LOG_TIME(_currentLevel->HandleInput(), "Input handling");
@@ -223,7 +228,7 @@ Game::handleGame(void)
 
         IF_LOG_TIME(
             _sdl.GetRenderer().SetRenderDrawColor({ Constants::Colors::LIGHT }); // TODO: Remove(?)
-            _sdl.GetRenderer().RenderPresent(true), "Rendering trgt"
+            _sdl.GetRenderer().RenderPresent(false), "Rendering trgt"
         );
 
         IF_LOG_TIME(thread::PreciseSleep(_glt.GetSleeptime(), sleepEst), "Slept for");
