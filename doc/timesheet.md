@@ -38,5 +38,6 @@
 | 2h   | 2022-05-12 | Research game cameras, implement camera class and center player in the middle of the x-axis. Minor refactoring to other classes |
 | 3h   | 2022-05-15 | Refactor and fix scaling issues, still some left. Add generation of map obstacles |
 | 2h   | 2022-05-15 | Implement colissions between player and objects |
-| 65h  |            | Total time spent |
+| 5h   | 2022-05-15 | Major refactoring, implemented states for player. Added help menu and some random gizmos to the gameplay
+| 70h  |            | Total time spent |
 
