@@ -32,6 +32,9 @@ struct Rectangle
 struct RectangleF
 {
     float X, Y, W, H;
+    bool Overlaps(const RectangleF& other)  const;
+    bool OverlapsX(const RectangleF& other) const;
+    bool OverlapsY(const RectangleF& other) const;
 };
 
 #endif // GEOMETRY_HPP

@@ -41,6 +41,14 @@ Transform::Transform(const glm::vec3& position, const glm::vec3& velocity, const
 }
 
 void
+Transform::BounceYAxis(void)
+{
+    if (_velocity.y > 0.0f) {
+        _velocity.y *= -1.0f;
+    }
+}
+
+void
 Transform::UpdatePhysics(const Physics& physicsEngine, RectangleF boundaries, Timestep dt)
 { // virtual override member function from PhysicsObject
 #define BOUNCE // TODO: Delete this hack
@@ -68,6 +76,8 @@ Transform::UpdatePhysics(const Physics& physicsEngine, RectangleF boundaries, Ti
     if (_position.y + _velocity.y < boundaries.Y) {
         _velocity.y = boundaries.Y - _position.y;
     }
+
+
 #ifdef BOUNCE
     else if (_velocity.y > 0.0f && _velocity.y + _position.y > boundaries.H) {
         _velocity.y = boundaries.H - _position.y + _velocity.y;

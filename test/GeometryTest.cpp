@@ -63,3 +63,26 @@ TEST(Dimensions2DTest, NotEqualsOperatorReturnsFalseWhenEqual)
     Dimensions2D r = { 2321, 0 };
     EXPECT_FALSE(l != r);
 }
+
+TEST(RectangleFTest, EqualRectsOverlapsReturnTrue)
+{
+    RectangleF rectA = { 10.0f, 20.0f, 100.0f, 100.0f};
+    RectangleF rectB = { 10.0f, 20.0f, 100.0f, 100.0f};
+    EXPECT_TRUE(rectA.Overlaps(rectB));
+    EXPECT_TRUE(rectB.Overlaps(rectA));
+}
+
+TEST(RectangleFTest, NonOverlappingRectsReturnFalse)
+{
+    constexpr float x = 10.0f;
+    constexpr float y = 20.0f;
+    constexpr float w = 55.3f;
+    constexpr float h = 242.01f;
+    constexpr float e = 0.00001f;
+
+    RectangleF rectA = { x, y, w, h};
+    RectangleF rectB = { x + w + e, y + h + e, w, h };
+
+    EXPECT_FALSE(rectA.Overlaps(rectB));
+    EXPECT_FALSE(rectB.Overlaps(rectA));
+}

@@ -41,6 +41,19 @@ Camera::SetDimensions(Dimensions2D widthHeight)
     _dimensions = widthHeight;
 }
 
+Rectangle
+Camera::TransformRectangle(RectangleF rect) const
+{
+    Rectangle transform = {
+        static_cast<int>(rect.X + 0.5f),
+        static_cast<int>(rect.Y + 0.5f),
+        static_cast<int>(rect.W + 0.5f),
+        static_cast<int>(rect.H + 0.5f),
+    };
+    transform.X -= GetX();
+    return transform;
+}
+
 Point2D
 Camera::Transform(Point2D screenCoords) const
 {
@@ -64,16 +77,33 @@ Camera::GetTopLeftPosition(void) const { return { GetX(), GetY() }; }
 Dimensions2D
 Camera::GetDimensions(void) const { return _dimensions; }
 
-Rectangle
-Camera::GetRectangle(void) const
+RectangleF
+Camera::GetRectangleF(void) const
 {
-    const Point2D centerPos = GetCenterPosition();
-
     return {
-        GetX(), GetY(),
-        centerPos.X + (_dimensions.W / 2),
-        centerPos.Y + (_dimensions.H / 2)
+        _position.x - 0.5f * static_cast<float>(_dimensions.W),
+        _position.y - 0.5f * static_cast<float>(_dimensions.H),
+        static_cast<float>(_dimensions.W),
+        static_cast<float>(_dimensions.H)
     };
+}
+
+bool
+Camera::RectangleIsInViewport(const RectangleF& rect) const
+{
+    const RectangleF camRect = GetRectangleF();
+
+    // Check if argument rect is inside the vieport on the x-axis
+    if (!GetRectangleF().OverlapsX(rect)) {
+        return false;
+    }
+
+    // Same for y-axis
+    if (!GetRectangleF().OverlapsY(rect)) {
+        return false;
+    }
+
+    return true;
 }
 
 int

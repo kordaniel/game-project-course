@@ -36,6 +36,7 @@
 | 1h   | 2022-05-09 | Refactor GameObject to be a base class. Add PlayerObject extending it to represent player |
 | 1h   | 2022-05-11 | Add infinitely scrolling background |
 | 2h   | 2022-05-12 | Research game cameras, implement camera class and center player in the middle of the x-axis. Minor refactoring to other classes |
-| 3h   | 2022-05-15 | Refactor and fix scaling issues, still some left. Add generation of map obstacles | 
-| 63h  |            | Total time spent |
+| 3h   | 2022-05-15 | Refactor and fix scaling issues, still some left. Add generation of map obstacles |
+| 2h   | 2022-05-15 | Implement colissions between player and objects |
+| 65h  |            | Total time spent |
 

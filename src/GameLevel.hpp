@@ -38,6 +38,7 @@ public:
 
     void HandleInput(void);
     void Update(Timestep dt);
+    void HandleCollisions(void);
     void Draw(const Renderer& renderer, Timestep it) const;
 
 private:
@@ -54,6 +55,7 @@ private:
     Camera           _camera;
 
     std::vector<std::unique_ptr<GameObject>> _levelObjects;
+
 };
 
 #endif // GAMELEVEL_HPP

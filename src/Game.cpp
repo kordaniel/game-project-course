@@ -222,6 +222,7 @@ Game::handleGame(void)
 
         while (_glt.ShouldDoUpdates()) {
             IF_LOG_TIME(_currentLevel->Update(_glt.GetUpdateDeltaTime()), "Physic updates");
+            IF_LOG_TIME(_currentLevel->HandleCollisions(), "Handle collisions");
         }
 
         IF_LOG_TIME(_currentLevel->Draw(_sdl.GetRenderer(), _glt.GetLag()), "Draw to target");

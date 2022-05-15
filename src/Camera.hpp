@@ -7,6 +7,8 @@
 #include <glm/vec4.hpp>
 
 
+/// The viewport into the gameworld. Tracks XYZ position but all transformations and other
+/// checks are only defined for the X-axis.
 class Camera
 {
 public:
@@ -26,11 +28,14 @@ public:
     void TrackPosition(const glm::vec4& targetPos, float alpha);
     void SetDimensions(Dimensions2D widthHeight);
 
+    Rectangle    TransformRectangle(RectangleF rect) const;
     Point2D      Transform(Point2D screenCoords) const;
     Point2D      GetCenterPosition(void)  const;
     Point2D      GetTopLeftPosition(void) const;
     Dimensions2D GetDimensions(void)      const;
-    Rectangle    GetRectangle(void)       const;
+    RectangleF   GetRectangleF(void)      const;
+
+    bool RectangleIsInViewport(const RectangleF& rect) const;
 
     /// @return leftmost X
     int          GetX(void)               const;

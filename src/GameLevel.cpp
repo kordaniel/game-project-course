@@ -53,20 +53,35 @@ GameLevel::HandleInput(void)
 void
 GameLevel::Update(Timestep dt)
 {
+    _player->Update(_physics, _arenaSize, dt);
+    _camera.TrackPosition(_player->GetPosition(), 0.1f);
+
     for (auto& o : _levelObjects) {
         o->Update(_physics, _arenaSize, dt);
     }
-    _player->Update(_physics, _arenaSize, dt);
-    _camera.TrackPosition(_player->GetPosition(), 0.1f);
+}
+
+void
+GameLevel::HandleCollisions(void)
+{
+    for (auto& o : _levelObjects) {
+        if (_player->CheckHitAndBounce(o.get())) {
+            break;
+        }
+    }
 }
 
 void
 GameLevel::Draw(const Renderer& renderer, Timestep it) const
 {
     _background.Draw(renderer, _camera, it);
+
     for (const auto& o : _levelObjects) {
-        o->Draw(renderer, _camera, it);
+        if (_camera.RectangleIsInViewport(o->GetCollissionRect())) {
+            o->Draw(renderer, _camera, it);
+        }
     }
+
     _player->Draw(renderer, _camera, it);
 }
 

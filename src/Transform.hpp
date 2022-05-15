@@ -17,6 +17,7 @@ public:
     Transform(Transform&& other)      = delete;
     ~Transform(void) = default;
 
+    void BounceYAxis(void);
     virtual void UpdatePhysics(const Physics& physics, RectangleF boundaries, Timestep dt) override;
 
     Point2D GetScreenCoords(Timestep it) const;

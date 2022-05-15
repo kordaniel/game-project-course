@@ -12,6 +12,7 @@
 #include <memory>
 #include <unordered_map>
 
+#define DRAW_COLLIDERS // Define to draw collision rectangles.
 
 class GameObject;
 class PlayerObject;
@@ -117,6 +118,8 @@ public:
     /// @param dt The deltatime length for the update.
     virtual void Update(const Physics& physics, Dimensions2D boundaries, Timestep dt) = 0;
 
+    virtual RectangleF GetCollissionRect(void) const = 0;
+
     void ApplyForce(Physics::Direction direction, float force);
     void ApplyForce(float angleDegrees, float force);
 
@@ -145,7 +148,13 @@ public:
     void  SetRadius(float radius);
     void  UpdateRadius(float factor);
 
+    /// Check if this PlayerObject colission rectangle overlaps with the arguments one.
+    /// It there was an overlap, invert y velocity for bouncing effect.
+    /// @return true if there was a hit, false otherwise.
+    bool CheckHitAndBounce(GameObject* obj);
+
     virtual void Update(const Physics& physics, Dimensions2D boundaries, Timestep dt) override;
+    virtual RectangleF GetCollissionRect(void) const override;
 
 private:
     float _radius;
@@ -162,8 +171,8 @@ public:
     ~BoxObject(void) = default;
 
     Dimensions2DF GetSize(void) const;
-
     virtual void Update(const Physics& physics, Dimensions2D boundaries, Timestep dt) override;
+    virtual RectangleF GetCollissionRect(void) const override;
 
 private:
     Dimensions2DF _size;

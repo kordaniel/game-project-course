@@ -80,6 +80,11 @@ GraphicsComponent::Draw(const Renderer& renderer, const Camera& camera, Timestep
              camera.Transform(playerPtr->GetTransform().GetScreenCoords(it)),
              static_cast<int>(playerPtr->GetRadius() + 0.5f)
         );
+#ifdef DRAW_COLLIDERS
+        Rectangle playerRect = camera.TransformRectangle(playerPtr->GetCollissionRect());
+        renderer.SetRenderDrawColor({ Constants::Colors::WHITE });
+        renderer.DrawRectangle(&playerRect);
+#endif
     }
     else if (const BoxObject* ptr = dynamic_cast<const BoxObject*>(_parent))
     {
@@ -91,6 +96,11 @@ GraphicsComponent::Draw(const Renderer& renderer, const Camera& camera, Timestep
                 static_cast<int>(ptr->GetSize().H + 0.5f)
             }
         );
+#ifdef DRAW_COLLIDERS
+        Rectangle boxRect = camera.TransformRectangle(ptr->GetCollissionRect());
+        renderer.SetRenderDrawColor({ Constants::Colors::WHITE });
+        renderer.DrawRectangle(&boxRect);
+#endif
     }
     else
     {
@@ -190,6 +200,24 @@ PlayerObject::UpdateRadius(float factor)
     _radius *= factor;
 }
 
+bool
+PlayerObject::CheckHitAndBounce(GameObject* obj)
+{
+    BoxObject* boxObj = dynamic_cast<BoxObject*>(obj);
+    if (boxObj == nullptr) {
+        Logger::Debug("PlayerObject::CheckHitAndBounce : Unable to cast GameObject to derived type");
+        return false;
+    }
+
+    if (GetCollissionRect().Overlaps(boxObj->GetCollissionRect()))
+    {
+        _transform.BounceYAxis();
+        return true;
+    }
+
+    return false;
+}
+
 void
 PlayerObject::Update(const Physics& physics, Dimensions2D boundaries, Timestep dt)
 {
@@ -205,6 +233,17 @@ PlayerObject::Update(const Physics& physics, Dimensions2D boundaries, Timestep d
     );
 }
 
+RectangleF
+PlayerObject::GetCollissionRect(void) const
+{
+    return {
+        _transform.GetPosition().x  - _radius,
+        _transform.GetPosition().y  - _radius,
+        2.0f * _radius,
+        2.0f * _radius
+    };
+}
+
 BoxObject::BoxObject(Input& input, Point2DF position, Dimensions2DF size, float moveSpeed)
     : GameObject(input, position.X, position.Y, moveSpeed)
     , _size(size)
@@ -214,6 +253,17 @@ BoxObject::BoxObject(Input& input, Point2DF position, Dimensions2DF size, float 
 
 Dimensions2DF
 BoxObject::GetSize(void) const { return _size; }
+
+RectangleF
+BoxObject::GetCollissionRect(void) const
+{
+    return {
+        _transform.GetPosition().x - (_size.W / 2),
+        _transform.GetPosition().y - (_size.H / 2),
+        _size.W,
+        _size.H
+    };
+}
 
 void
 BoxObject::Update([[maybe_unused]] const Physics& physics, [[maybe_unused]] Dimensions2D boundaries, [[maybe_unused]] Timestep dt)
