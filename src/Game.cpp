@@ -125,11 +125,12 @@ Game::handleMenu(void)
 {
     assert(_state == State::MENU);
 
-    Input& input             = _sdl.GetInput();
-    const Renderer& renderer = _sdl.GetRenderer();
-    const Font& fontTitle    = _resMgr.GetFont(Constants::Fonts::TTF::PERMANENTMARKER, 128);
-    const Font& fontLabels   = _resMgr.GetFont(Constants::Fonts::TTF::PERMANENTMARKER, 64);
-
+    Input& input               = _sdl.GetInput();
+    const Renderer& renderer   = _sdl.GetRenderer();
+    const Font& fontTitle      = _resMgr.GetFont(Constants::Fonts::TTF::PERMANENTMARKER, 128);
+    const Font& fontLabels     = _resMgr.GetFont(Constants::Fonts::TTF::PERMANENTMARKER, 64);
+    const Font& helpFontTitle  = _resMgr.GetFont(Constants::Fonts::TTF::PERMANENTMARKER, 64);
+    const Font& helpFontLabels = _resMgr.GetFont(Constants::Fonts::TTF::PERMANENTMARKER, 32);
     Menu mainMenu(
         fontTitle, Color::WithAlpha(Constants::Colors::LIGHT, 180),
         fontLabels, Color::WithAlpha(Constants::Colors::LIGHTEST, 150),
@@ -144,6 +145,13 @@ Game::handleMenu(void)
         "Settings"
     );
 
+    Menu helpMenu(
+        helpFontTitle, Constants::Colors::LIGHT,
+        helpFontLabels, Constants::Colors::LIGHTEST,
+        _resMgr.GetImage(Constants::Images::PIXNIO_DARK_BLUERED),
+        "Stay on top of life.."
+    );
+
     Menu* activeMenu = &mainMenu;
 
     mainMenu.AddLabel("New Game", std::bind(&Game::loadLevel, this));
@@ -151,9 +159,24 @@ Game::handleMenu(void)
         activeMenu = &settingsMenu;
         settingsMenu.ActivateCallbacks(input);
     });
-    mainMenu.AddLabel("Help (NOT implemented)", [](){ Logger::Debug("Help"); });
+    mainMenu.AddLabel("Help", [&activeMenu, &helpMenu, &input](){
+        activeMenu = &helpMenu;
+        helpMenu.ActivateCallbacks(input);
+    });
     mainMenu.AddLabel("Quit", std::bind(&Game::handleQuitEvent, this));
     mainMenu.ActivateCallbacks(input);
+
+    helpMenu.AddLabel("..And make sure to never fall!");
+    helpMenu.AddLabel("Inputs:");
+    helpMenu.AddLabel("P|ESC => pause");
+    helpMenu.AddLabel("C|V => toggle VSYNC");
+    helpMenu.AddLabel("M => Mute music");
+    helpMenu.AddLabel("SPACE => Jump");
+    helpMenu.AddLabel("Arrow keys for moving!");
+    helpMenu.AddLabel("Enjoy (Back)!", [&activeMenu, &mainMenu, &input]() {
+        activeMenu = &mainMenu;
+        mainMenu.ActivateCallbacks(input);
+    });
 
     settingsMenu.AddLabel("Keys (NOT implemented)");
     settingsMenu.AddLabel("Gfxs (NOT implemented)");
@@ -163,6 +186,7 @@ Game::handleMenu(void)
     });
 
     mainMenu.UpdateTextures(renderer);
+    helpMenu.UpdateTextures(renderer);
     settingsMenu.UpdateTextures(renderer);
 
     while (_state == State::MENU)
