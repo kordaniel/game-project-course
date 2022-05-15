@@ -3,6 +3,169 @@
 #include "Constants.hpp"
 #include "Physics.hpp"
 
+#include <cmath>
+
+
+GameObjectState*
+FallingState::HandleUpdate(PlayerObject* parent, const Physics& physics, Dimensions2D boundaries, Timestep dt)
+{
+    float r = parent->GetRadius();
+    parent->GetMutableTransform().UpdatePhysics(
+        physics,
+        {
+            r, r,
+            static_cast<float>(boundaries.W) - r,
+            static_cast<float>(boundaries.H) - r
+        },
+        dt
+    );
+    return nullptr;
+}
+
+GameObjectState*
+FallingState::HandleInput(InputComponent& inputCmp)
+{
+    inputCmp.Handle({
+        Input::KeyCode::UP,
+        Input::KeyCode::DOWN,
+        Input::KeyCode::LEFT,
+        Input::KeyCode::RIGHT
+    });
+    return nullptr;
+}
+
+GameObjectState*
+FallingState::HandleCollisions(PlayerObject* parent, GameObject* obj)
+{
+    if (parent->GetCollissionRect().Overlaps(obj->GetCollissionRect())) {
+        obj->SetColor(Constants::Colors::GREEN);
+        if (std::abs(parent->GetTransform().GetVelocity().y) < 1.0f) {
+            parent->SetYVelocityStopped();
+            float yBounds = parent->GetPosition().y;
+            float xBounds = obj->GetCollissionRect().X;
+            float xWidth  = xBounds + obj->GetCollissionRect().W;
+            //xBounds += 0.5f * parent->GetRadius();
+            //xWidth  -= 0.5f * parent->GetRadius();
+            return new OnGroundState(yBounds, xBounds, xWidth);
+        }
+
+        parent->BounceYAxis();
+        return new JumpingState(2);
+    }
+    return nullptr;
+}
+
+
+JumpingState::JumpingState(size_t jumpsCount)
+    : _jumpsLeft(jumpsCount)
+{
+    //
+}
+
+GameObjectState*
+JumpingState::HandleUpdate(PlayerObject* parent, const Physics& physics, Dimensions2D boundaries, Timestep dt)
+{
+    float r = parent->GetRadius();
+    parent->GetMutableTransform().UpdatePhysics(
+        physics,
+        {
+            r, r,
+            static_cast<float>(boundaries.W) - r,
+            static_cast<float>(boundaries.H) - r
+        },
+        dt
+    );
+
+    if (parent->GetVelocity().y > 0.0f) {
+        return new FallingState();
+    }
+
+    return nullptr;
+}
+
+GameObjectState*
+JumpingState::HandleInput(InputComponent& inputCmp)
+{
+    std::vector<Input::KeyCode> activeKeys = {
+        Input::KeyCode::LEFT,
+        Input::KeyCode::RIGHT,
+        Input::KeyCode::DOWN
+    };
+
+    if (_jumpsLeft > 0) {
+        activeKeys.push_back(Input::KeyCode::UP);
+        activeKeys.push_back(Input::KeyCode::SPACE);
+    }
+
+    bool spacePressed = inputCmp.Handle(activeKeys);
+    if (_jumpsLeft > 0 && spacePressed) {
+        _jumpsLeft--;
+    }
+
+    return nullptr;
+}
+
+GameObjectState*
+JumpingState::HandleCollisions([[maybe_unused]] PlayerObject* parent, [[maybe_unused]] GameObject* obj)
+{
+    // Do nothing
+    return nullptr;
+}
+
+OnGroundState::OnGroundState(float yBound, float xBound, float xWidth)
+    : _yBound(yBound)
+    , _xBound(xBound)
+    , _xWidth(xWidth)
+{
+    //Logger::Debug("Player state changed to OnGround");
+}
+
+GameObjectState*
+OnGroundState::HandleUpdate(PlayerObject* parent, const Physics& physics, Dimensions2D boundaries, Timestep dt)
+{
+    float r = parent->GetRadius();
+    parent->GetMutableTransform().UpdatePhysics(
+        physics,
+        {
+            r, r,
+            static_cast<float>(boundaries.W) - r,
+            _yBound
+        },
+        dt
+    );
+
+    RectangleF pr = parent->GetCollissionRect();
+    if (pr.X + pr.W < _xBound || pr.X > _xWidth) {
+        return new FallingState();
+    }
+
+    return nullptr;
+}
+
+GameObjectState*
+OnGroundState::HandleInput(InputComponent& inputCmp)
+{
+    bool spacePressed = inputCmp.Handle({
+        Input::KeyCode::UP,
+        Input::KeyCode::DOWN,
+        Input::KeyCode::LEFT,
+        Input::KeyCode::RIGHT,
+        Input::KeyCode::SPACE
+    });
+
+    if (spacePressed) {
+        return new JumpingState(2);
+    }
+
+    return nullptr;
+}
+
+GameObjectState*
+OnGroundState::HandleCollisions([[maybe_unused]] PlayerObject* parent, [[maybe_unused]] GameObject* obj)
+{
+    // Do nothing
+    return nullptr;
+}
 
 void
 NullCommand::ExecuteMovement([[maybe_unused]] Transform& transform) const
@@ -13,7 +176,7 @@ NullCommand::ExecuteMovement([[maybe_unused]] Transform& transform) const
 void
 JumpCommand::ExecuteMovement(Transform& transform) const
 {
-    transform.ApplyForce(Physics::Direction::NORTH, 5.0f * transform.GetMoveForce());
+    transform.ApplyForce(Physics::Direction::NORTH, 12.5f * transform.GetMoveForce());
 }
 
 MoveCommand::MoveCommand(Physics::Direction direction)
@@ -37,9 +200,9 @@ MoveCommand::ExecuteMovement(Transform& transform) const
 }
 
 
-InputComponent::InputComponent(const Input& input, GameObject& parent)
+InputComponent::InputComponent(const Input& input)
     : _input(input)
-    , _parent(parent)
+    , _parent(nullptr)
     , _keymaps()
 {
     _keymaps.emplace(Input::KeyCode::UP,    std::make_unique<MoveCommand>(Physics::Direction::NORTH));
@@ -50,14 +213,37 @@ InputComponent::InputComponent(const Input& input, GameObject& parent)
 }
 
 void
-InputComponent::Handle(void)
+InputComponent::SetParent(GameObject* parent)
 {
-    Transform& transform = const_cast<Transform&>(_parent.GetTransform());
-    for (auto const& [keyCode, command] : _keymaps) {
-        if (_input.IsPressed(keyCode)) {
-            command.get()->ExecuteMovement(transform);
+    _parent = parent;
+}
+
+bool
+InputComponent::Handle(const std::vector<Input::KeyCode>& keys)
+{
+    assert(_parent != nullptr);
+
+    bool spacePressed = false;
+    Transform& transform = const_cast<Transform&>(_parent->GetTransform());
+
+    for (const auto& keyCode : keys)
+    {
+        if (_input.IsPressed(keyCode))
+        {
+            auto cmd = _keymaps.find(keyCode);
+            if (cmd != _keymaps.end())
+            {
+                cmd->second->ExecuteMovement(transform);
+                if (keyCode == Input::KeyCode::SPACE)
+                {
+                    spacePressed = true;
+                    dynamic_cast<PlayerObject*>(_parent)->PlayJumpingSound(); // TODO: Quick hack, get rid of this dangerous cast
+                }
+            }
         }
     }
+
+    return spacePressed;
 }
 
 
@@ -75,20 +261,22 @@ GraphicsComponent::Draw(const Renderer& renderer, const Camera& camera, Timestep
 
     if (const PlayerObject* playerPtr = dynamic_cast<const PlayerObject*>(_parent))
     {
-        renderer.SetRenderDrawColor({ Constants::Colors::RED });
+        renderer.SetRenderDrawColor(playerPtr->GetColor());
         renderer.DrawCircleFilled(
              camera.Transform(playerPtr->GetTransform().GetScreenCoords(it)),
              static_cast<int>(playerPtr->GetRadius() + 0.5f)
         );
+
 #ifdef DRAW_COLLIDERS
         Rectangle playerRect = camera.TransformRectangle(playerPtr->GetCollissionRect());
         renderer.SetRenderDrawColor({ Constants::Colors::WHITE });
         renderer.DrawRectangle(&playerRect);
 #endif
+
     }
     else if (const BoxObject* ptr = dynamic_cast<const BoxObject*>(_parent))
     {
-        renderer.SetRenderDrawColor({ Constants::Colors::DARK });
+        renderer.SetRenderDrawColor(ptr->GetColor());
         renderer.DrawFilledRectangle(
             camera.Transform(ptr->GetTransform().GetScreenCoords(it)),
             {
@@ -96,11 +284,13 @@ GraphicsComponent::Draw(const Renderer& renderer, const Camera& camera, Timestep
                 static_cast<int>(ptr->GetSize().H + 0.5f)
             }
         );
+
 #ifdef DRAW_COLLIDERS
         Rectangle boxRect = camera.TransformRectangle(ptr->GetCollissionRect());
         renderer.SetRenderDrawColor({ Constants::Colors::WHITE });
         renderer.DrawRectangle(&boxRect);
 #endif
+
     }
     else
     {
@@ -111,9 +301,9 @@ GraphicsComponent::Draw(const Renderer& renderer, const Camera& camera, Timestep
 
 
 std::unique_ptr<PlayerObject>
-GameObject::CreatePlayer(Input& input, float posX, float posY, float moveSpeed, float radius)
+GameObject::CreatePlayer(Input& input, float posX, float posY, float moveSpeed, float radius, Sound& jumpSound, Color color)
 { // Static function
-    return std::make_unique<PlayerObject>(input, posX, posY, moveSpeed, radius);
+    return std::make_unique<PlayerObject>(input, posX, posY, moveSpeed, radius, jumpSound, color);
 }
 
 std::unique_ptr<GameObject>
@@ -122,10 +312,12 @@ GameObject::CreateBox(Input& input, float moveSpeed, Point2DF position, Dimensio
     return std::make_unique<BoxObject>(input, position, size, moveSpeed);
 }
 
-GameObject::GameObject(Input& input, float posX, float posY, float moveSpeed)
-    : _inputComponent(input, *this)
+GameObject::GameObject(Input& input, float posX, float posY, float moveSpeed, Color color)
+    : _inputComponent(input)
     , _graphicsComponent()
     , _transform(posX, posY, moveSpeed)
+    , _state(new FallingState())
+    , _color(color)
 {
     // Logger::Debug("Gameobject Constructed");
 }
@@ -133,6 +325,9 @@ GameObject::GameObject(Input& input, float posX, float posY, float moveSpeed)
 GameObject::~GameObject(void)
 {
     // Logger::Debug("GameObject Destructed");
+    if (_state != nullptr) {
+        delete _state;
+    }
 }
 
 bool
@@ -147,6 +342,15 @@ GameObject::GetVelocity(void) const { return _transform.GetVelocity(); }
 const Transform&
 GameObject::GetTransform(void) const { return _transform; }
 
+Transform&
+GameObject::GetMutableTransform(void) { return _transform; }
+
+void
+GameObject::SetYVelocityStopped(void)
+{
+    _transform.SetYVelocityZero();
+}
+
 void
 GameObject::SetPosition(float xPos, float yPos)
 {
@@ -154,10 +358,13 @@ GameObject::SetPosition(float xPos, float yPos)
 }
 
 void
-GameObject::HandleInput(void)
+GameObject::SetColor(Color color)
 {
-    _inputComponent.Handle();
+    _color = color;
 }
+
+Color
+GameObject::GetColor(void) const { return _color; }
 
 void
 GameObject::ApplyForce(Physics::Direction direction, float force)
@@ -178,10 +385,12 @@ GameObject::Draw(const Renderer& renderer, const Camera& camera, Timestep it) co
 }
 
 
-PlayerObject::PlayerObject(Input& input, float posX, float posY, float moveSpeed, float radius)
-    : GameObject(input, posX, posY, moveSpeed)
+PlayerObject::PlayerObject(Input& input, float posX, float posY, float moveSpeed, float radius, Sound& jumpSound, Color color)
+    : GameObject(input, posX, posY, moveSpeed, color)
     , _radius(radius)
+    , _soundJump(jumpSound)
 {
+    _inputComponent.SetParent(this);
     _graphicsComponent.SetParent(this);
 }
 
@@ -209,28 +418,59 @@ PlayerObject::CheckHitAndBounce(GameObject* obj)
         return false;
     }
 
-    if (GetCollissionRect().Overlaps(boxObj->GetCollissionRect()))
-    {
-        _transform.BounceYAxis();
-        return true;
+    GameObjectState* newState = _state->HandleCollisions(this, boxObj);
+    if (newState == nullptr) {
+        return false;
     }
 
-    return false;
+    delete _state;
+    _state = newState;
+
+    return true;
+
+    //if (GetCollissionRect().Overlaps(boxObj->GetCollissionRect()))
+    //{
+    //    _transform.BounceYAxis();
+    //    return true;
+    //}
+
+    //return false;
+}
+
+void
+PlayerObject::BounceYAxis(void)
+{
+    _transform.BounceYAxis();
+}
+
+void
+PlayerObject::PlayJumpingSound(void)
+{
+    _soundJump.Play();
+}
+
+void
+PlayerObject::HandleInput(void)
+{
+    GameObjectState* newState = _state->HandleInput(_inputComponent);
+    if (newState == nullptr) {
+        return;
+    }
+
+    delete _state;
+    _state = newState;
 }
 
 void
 PlayerObject::Update(const Physics& physics, Dimensions2D boundaries, Timestep dt)
 {
-    _transform.UpdatePhysics(
-        physics,
-        {
-            _radius,
-            _radius,
-            static_cast<float>(boundaries.W) - _radius,
-            static_cast<float>(boundaries.H) - _radius
-        },
-        dt
-    );
+    GameObjectState* newState = _state->HandleUpdate(this, physics, boundaries, dt);
+    if (newState == nullptr) {
+        return;
+    }
+
+    delete _state;
+    _state = newState;
 }
 
 RectangleF
@@ -244,8 +484,8 @@ PlayerObject::GetCollissionRect(void) const
     };
 }
 
-BoxObject::BoxObject(Input& input, Point2DF position, Dimensions2DF size, float moveSpeed)
-    : GameObject(input, position.X, position.Y, moveSpeed)
+BoxObject::BoxObject(Input& input, Point2DF position, Dimensions2DF size, float moveSpeed, Color color)
+    : GameObject(input, position.X, position.Y, moveSpeed, color)
     , _size(size)
 {
     _graphicsComponent.SetParent(this);
@@ -263,6 +503,12 @@ BoxObject::GetCollissionRect(void) const
         _size.W,
         _size.H
     };
+}
+
+void
+BoxObject::HandleInput(void)
+{
+    // Do nothing
 }
 
 void

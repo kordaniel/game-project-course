@@ -102,7 +102,9 @@ Game::loadLevel(void)
         75.0f, // xPos
         75.0f, // yPos
         75.0f, // standard speed
-        50.0f  // radius
+        30.0f,  // radius
+        _resMgr.GetSound(Constants::Sounds::JUMP),
+        Constants::Colors::LIGHT
     );
     _currentLevel = GameLevel::CreateLevel(
         _sdl, _resMgr, levelDimensions, Constants::Tilesets::FPT::BG,
