@@ -91,17 +91,15 @@ Camera::GetRectangleF(void) const
 bool
 Camera::RectangleIsInViewport(const RectangleF& rect) const
 {
-    const RectangleF camRect = GetRectangleF();
-
     // Check if argument rect is inside the vieport on the x-axis
     if (!GetRectangleF().OverlapsX(rect)) {
         return false;
     }
 
     // Same for y-axis
-    if (!GetRectangleF().OverlapsY(rect)) {
-        return false;
-    }
+    //if (!GetRectangleF().OverlapsY(rect)) {
+    //    return false;
+    //}
 
     return true;
 }
