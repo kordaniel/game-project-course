@@ -7,6 +7,11 @@ struct Point2D
     int X, Y;
 };
 
+struct Point2DF
+{
+    float X, Y;
+};
+
 struct Dimensions2D
 {
     int W, H;
