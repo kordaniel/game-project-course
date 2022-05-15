@@ -36,6 +36,15 @@ namespace Helpers
     /// @param with The substring to replace with.
     std::string& ReplaceAll(std::string& strBuf, std::string_view what, std::string_view with);
 
+    namespace random
+    {
+        void  Seed(unsigned int seed);
+
+        /// @return A random float in the closed range [min, max]
+        float FloatInRange(float min, float max);
+
+    } // end namespace Helpers::random
+
 } // end namespace Helpers
 
 #endif // HELPERS_HPP

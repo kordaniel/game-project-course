@@ -1,5 +1,10 @@
 #include "Helpers.hpp"
 
+
+#include <cstdlib> // srand, rand
+#include <cassert>
+
+
 namespace std
 {
 
@@ -26,6 +31,19 @@ namespace Helpers
         }
 
         return strBuf;
+    }
+
+    void
+    random::Seed(unsigned int seed)
+    {
+        std::srand(seed);
+    }
+
+    float
+    random::FloatInRange(float min, float max)
+    {
+        assert(max - min > 0.0f);
+        return min + ((max - min) * (static_cast<float>(std::rand()) / static_cast<float>(RAND_MAX)));
     }
 
 } // end namespace Helpers
