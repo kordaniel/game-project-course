@@ -1,8 +1,9 @@
 #ifndef LOGGER_HPP
 #define LOGGER_HPP
 
-#include "Timetools.hpp"
+#include "Color.hpp"
 #include "Geometry.hpp"
+#include "Timetools.hpp"
 
 #include <string>
 #include <string_view>
@@ -22,6 +23,17 @@
 
 namespace fmt
 {
+
+    template<>
+    struct formatter<Color>
+    {
+        constexpr auto parse(format_parse_context& ctx) -> decltype(ctx.begin())
+        { return ctx.begin(); }
+
+        template<typename FormatContext>
+        auto format(Color col, FormatContext& ctx) -> decltype(ctx.out())
+        { return fmt::format_to(ctx.out(), "Color:\n{{ R: {}\n  G: {}\n  B: {}\n  A: {} }}", col.r, col.g, col.b, col.a); }
+    };
 
     template<>
     struct formatter<SDL_Rect>
