@@ -93,9 +93,11 @@ Game::loadLevel(void)
     _sdl.GetMixer().SetMusicVolume(0.5);
     _sdl.GetMixer().PlayMusicFadeIn(2000);
 
+    int levelNumber = 1;
     Dimensions2D levelDimensions = { 100 * 1280, Constants::RENDER_SIZE.H };
     float gravity  = 100.0f;
     float friction = 0.9f;
+    double initialTime = 300.0;
 
     _player = GameObject::CreatePlayer(
         _sdl.GetInput(),
@@ -107,8 +109,8 @@ Game::loadLevel(void)
         Constants::Colors::LIGHT
     );
     _currentLevel = GameLevel::CreateLevel(
-        _sdl, _resMgr, levelDimensions, Constants::Tilesets::FPT::BG,
-        gravity, friction, _player.get()
+        _sdl, _resMgr, levelNumber, levelDimensions, Constants::Tilesets::FPT::BG,
+        gravity, friction, initialTime, _player.get()
     );
 
     setGameState(State::RUNNING);
@@ -227,7 +229,6 @@ Game::handleGame(void)
 
         _glt.InitIteration();
 
-        _sdl.GetRenderer().RenderClear();
         _mousePos = _sdl.PollEvents();
 
         IF_LOG_TIME(_currentLevel->HandleInput(), "Input handling");
@@ -254,8 +255,8 @@ Game::handleGame(void)
         IF_LOG_TIME(_currentLevel->Draw(_sdl.GetRenderer(), _glt.GetLag()), "Draw to target");
 
         IF_LOG_TIME(
-            _sdl.GetRenderer().SetRenderDrawColor({ Constants::Colors::LIGHT }); // TODO: Remove(?)
-            _sdl.GetRenderer().RenderPresent(false), "Rendering trgt"
+            _sdl.GetRenderer().SetRenderDrawColor({ Constants::Colors::BLACK });
+            _sdl.GetRenderer().RenderPresent(true), "Rendering trgt" // Clears the back buffer with the current color
         );
 
         IF_LOG_TIME(thread::PreciseSleep(_glt.GetSleeptime(), sleepEst), "Slept for");

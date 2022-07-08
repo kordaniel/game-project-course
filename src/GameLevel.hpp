@@ -1,34 +1,36 @@
 #ifndef GAMELEVEL_HPP
 #define GAMELEVEL_HPP
 
-#include "Sdl2.hpp"
-#include "ResourceManager.hpp"
-#include "Timetools.hpp"
-#include "Geometry.hpp"
-#include "Physics.hpp"
-#include "GameObject.hpp"
-#include "Renderer.hpp"
-#include "Camera.hpp"
 #include "Background.hpp"
+#include "Camera.hpp"
+#include "GameObject.hpp"
+#include "Geometry.hpp"
+#include "Overlays.hpp"
+#include "Physics.hpp"
+#include "Renderer.hpp"
+#include "ResourceManager.hpp"
+#include "Sdl2.hpp"
+#include "Timetools.hpp"
 
 #include <memory>
 #include <vector>
+#include <string>
 
 
 class GameLevel
 {
 public:
     static std::unique_ptr<GameLevel> CreateLevel(Sdl2& sdl2, ResourceManager& resMgr,
-                                                  Dimensions2D arenaSize,
+                                                  int levelNumber, Dimensions2D arenaSize,
                                                   const std::string& backgroundFilepath,
-                                                  float gravity, float friction,
+                                                  float gravity, float friction, double initialTime,
                                                   PlayerObject* player);
 
 public:
     GameLevel(Sdl2& sdl2, ResourceManager& resMgr,
-              Dimensions2D arenaSize,
+              int levelNumber, Dimensions2D arenaSize,
               const std::string& backgroundFilepath,
-              float gravity, float friction,
+              float gravity, float friction, double initialTime,
               PlayerObject* player);
     GameLevel(const GameLevel& other) = delete;
     GameLevel(GameLevel&& other)      = delete;
@@ -55,6 +57,8 @@ private:
     Camera           _camera;
 
     std::vector<std::unique_ptr<GameObject>> _levelObjects;
+    LevelTimer       _timeLeft;
+    GameHUD          _gameHUD;
 
 };
 

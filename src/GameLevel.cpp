@@ -6,17 +6,17 @@
 
 
 std::unique_ptr<GameLevel>
-GameLevel::CreateLevel(Sdl2& sdl2, ResourceManager& resMgr, Dimensions2D arenaSize,
+GameLevel::CreateLevel(Sdl2& sdl2, ResourceManager& resMgr, int levelNumber, Dimensions2D arenaSize,
                        const std::string& backgroundFilepath,
-                       float gravity, float friction, PlayerObject* player)
+                       float gravity, float friction, double initialTime, PlayerObject* player)
 { // Static function
-    return std::make_unique<GameLevel>(sdl2, resMgr, arenaSize, backgroundFilepath, gravity, friction, player);
+    return std::make_unique<GameLevel>(sdl2, resMgr, levelNumber, arenaSize, backgroundFilepath, gravity, friction, initialTime, player);
 }
 
 
-GameLevel::GameLevel(Sdl2& sdl2, ResourceManager& resMgr, Dimensions2D arenaSize,
+GameLevel::GameLevel(Sdl2& sdl2, ResourceManager& resMgr, int levelNumber, Dimensions2D arenaSize,
                      const std::string& backgroundFilepath,
-                     float gravity, float friction, PlayerObject* player)
+                     float gravity, float friction, double initialTime, PlayerObject* player)
     : _sdl2(sdl2)
     , _resMgr(resMgr)
     , _arenaSize(arenaSize)
@@ -25,6 +25,12 @@ GameLevel::GameLevel(Sdl2& sdl2, ResourceManager& resMgr, Dimensions2D arenaSize
     , _player(player)
     , _camera()
     , _levelObjects()
+    , _timeLeft(initialTime)
+    , _gameHUD(
+        _resMgr.GetFont(Constants::Fonts::TTF::PERMANENTMARKER, 32),
+        _sdl2.GetRenderer(),
+        levelNumber, 180
+    )
 {
     assert(player != nullptr);
     player->SetPosition(2.0f * player->GetRadius(), 2.0f * _player->GetRadius());
@@ -33,6 +39,8 @@ GameLevel::GameLevel(Sdl2& sdl2, ResourceManager& resMgr, Dimensions2D arenaSize
     _camera.SetDimensions(_sdl2.GetRenderer().GetLogicalSize());
 
     initLevelObjects();
+
+    Logger::Info("Level {} loaded!", levelNumber);
 }
 
 Dimensions2DF
@@ -59,6 +67,14 @@ GameLevel::Update(Timestep dt)
     for (auto& o : _levelObjects) {
         o->Update(_physics, _arenaSize, dt);
     }
+
+    _timeLeft.DeductTime(dt);
+
+    static int score = 0; // TODO: Remove fakescore
+    _gameHUD.Update(
+        _timeLeft.GetTimeLeft().GetWholeSeconds(),
+        (Helpers::random::FloatInRange(0.0f, 1.0f) >= 0.95f ? (score += 10) : score) // TODO: Remove fakescore
+    );
 }
 
 void
@@ -83,6 +99,8 @@ GameLevel::Draw(const Renderer& renderer, Timestep it) const
     }
 
     _player->Draw(renderer, _camera, it);
+
+    _gameHUD.Draw(renderer);
 }
 
 void

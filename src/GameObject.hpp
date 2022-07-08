@@ -16,7 +16,7 @@
 #include <vector>
 #include <string>
 
-#define DRAW_COLLIDERS // Define to draw collision rectangles.
+// #define DRAW_COLLIDERS // Define to draw collision rectangles.
 
 class GameObject;
 class InputComponent;
