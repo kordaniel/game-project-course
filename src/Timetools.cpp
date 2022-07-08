@@ -39,6 +39,9 @@ Timestep::GetSeconds(void) const { return _seconds; }
 double
 Timestep::GetMilliSeconds(void) const { return 1000.0 * _seconds; }
 
+int
+Timestep::GetWholeSeconds(void) const { return static_cast<int>(_seconds); }
+
 
 Timer::Timer(const std::string_view message, bool autoLogElapsedAtDestruction)
     : _startTimepoint(std::chrono::steady_clock::now())
@@ -120,6 +123,29 @@ Timer::processResult(const std::chrono::time_point<std::chrono::steady_clock>& e
     }
 }
 
+LevelTimer::LevelTimer(Timestep timestep)
+    : _timeLeft(Duration(timestep))
+{
+    //
+}
+
+void
+LevelTimer::DeductTime(Timestep ts)
+{
+    _timeLeft -= Duration(ts);
+}
+
+bool
+LevelTimer::IsPositive(void) const
+{
+    return _timeLeft > Duration(0.0);
+}
+
+Timestep
+LevelTimer::GetTimeLeft(void) const
+{
+    return _timeLeft.count();
+}
 
 GameloopTimer::GameloopTimer(size_t iterationFreq, size_t updateFreq, double updateTimeMax)
     : _targetTime(DUR_ONE_SECOND / iterationFreq)
@@ -137,8 +163,8 @@ void
 GameloopTimer::ResetFields(void)
 {
     _accumulatedLag = Duration(0.0);
-    _timePrevious = Clock::now();
-    _timeCurrent = Clock::now();
+    _timePrevious   = Clock::now();
+    _timeCurrent    = Clock::now();
 }
 
 void

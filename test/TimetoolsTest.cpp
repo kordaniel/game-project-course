@@ -40,12 +40,81 @@ TEST(Timestep, OneThirdOfSecond)
     EXPECT_DOUBLE_EQ(ts.GetMilliSeconds(), 1000.0 / 3.0);
 }
 
+TEST(Timestep, WholeSecondTruncateToOneFromAlmostTwo)
+{
+    Timestep ts(1.99999999);
+    EXPECT_EQ(ts.GetWholeSeconds(), 1);
+}
+
+TEST(Timestep, WholeSecondTruncatesToOneFromOneAndAHalf)
+{
+    Timestep ts(1.5);
+    EXPECT_EQ(ts.GetWholeSeconds(), 1);
+}
+
+TEST(Timestep, WholeSecondTruncatesToOneFromOne)
+{
+    Timestep ts(1.0);
+    EXPECT_EQ(ts.GetWholeSeconds(), 1);
+}
+
+TEST(Timestep, WholeSecondTrunctatesToZeroFromAlmostOne)
+{
+    Timestep ts(0.999999999);
+    EXPECT_EQ(ts.GetWholeSeconds(), 0);
+}
+
+TEST(Timestep, OverZeroIsNOTNonPositive)
+{
+    Timestep ts(0.000001);
+    EXPECT_FALSE(ts.IsNonPositive());
+}
+
+TEST(Timestep, ZeroIsNonPositive)
+{
+    Timestep ts(0.0);
+    EXPECT_TRUE(ts.IsNonPositive());
+}
+
 TEST(GameloopTimer, 30FPS)
 {
     constexpr size_t FPS = 30;
     GameloopTimer glt(FPS, 20, 0.5);
     EXPECT_DOUBLE_EQ(glt.GetIterationTargetTime().GetSeconds(), 1. / FPS);
     EXPECT_DOUBLE_EQ(glt.GetIterationTargetTime().GetMilliSeconds(), 1000. / FPS);
+}
+
+TEST(LevelTimer, InitializesToSetTime)
+{
+    Timestep ts(1.0);
+    LevelTimer lt(ts);
+    EXPECT_DOUBLE_EQ(lt.GetTimeLeft().GetSeconds(), ts.GetSeconds());
+    EXPECT_TRUE(lt.IsPositive());
+}
+
+TEST(LevelTimer, InitializesToZero)
+{
+    Timestep ts(0.0);
+    LevelTimer lt(ts);
+    EXPECT_DOUBLE_EQ(lt.GetTimeLeft().GetSeconds(), ts.GetSeconds());
+    EXPECT_FALSE(lt.IsPositive());
+}
+
+TEST(LevelTimer, DeductsToZero)
+{
+    Timestep ts(100.0);
+    LevelTimer lt(ts);
+
+    ts -= 0.5 * ts.GetSeconds();
+    lt.DeductTime(ts);
+
+    EXPECT_DOUBLE_EQ(lt.GetTimeLeft().GetSeconds(), ts.GetSeconds());
+    EXPECT_TRUE(lt.IsPositive());
+
+    lt.DeductTime(ts);
+
+    EXPECT_DOUBLE_EQ(lt.GetTimeLeft().GetSeconds(), 0.0);
+    EXPECT_FALSE(lt.IsPositive());
 }
 
 TEST(GameloopTimer, 60FPS)

@@ -30,6 +30,9 @@ public:
     double GetSeconds(void)      const;
     double GetMilliSeconds(void) const;
 
+    /// Returns the timestep value as an truncated integer.
+    int    GetWholeSeconds(void) const;
+
 private:
     double _seconds;
 
@@ -63,6 +66,29 @@ private:
     std::chrono::time_point<std::chrono::steady_clock> _startTimepoint;
     const std::string_view                             _message;
     bool                                               _autoLog;
+
+};
+
+
+/// A timer class that is intended to be used as a downward counting timer. Initialize with a
+/// Timestep representing a game time duration.
+class LevelTimer
+{
+public:
+    using Duration   = std::chrono::duration<double>;
+
+    LevelTimer(Timestep timestep);
+    LevelTimer(const LevelTimer& other) = delete;
+    LevelTimer(LevelTimer&& other)      = delete;
+    ~LevelTimer(void) = default;
+
+    void DeductTime(Timestep ts);
+
+    bool IsPositive(void)      const;
+    Timestep GetTimeLeft(void) const;
+
+private:
+    Duration _timeLeft;
 
 };
 
